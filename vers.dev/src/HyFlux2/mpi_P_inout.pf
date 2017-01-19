@@ -1,0 +1,36 @@
+*proc master_to_slave
+c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        subroutine PJ_$1_master_to_slave (val, idim, tag)
+c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        use parallel_data
+       use constants
+        implicit none
+        integer(i4) siz,tag, i, idim, i1
+        $2 val(*)
+
+        if (MASTER) then
+        do i = 1, ncore-1
+        siz = (nj2(i)-nj1(i) + 1)*idim
+        i1  = (nj1(i)-1)*idim + 1
+        call mpi_send (val(i1),siz, $3, i, tag
+     &                 , mpi_comm_world, mpi_erro)
+        enddo
+        endif      
+
+        if (SLAVE) then
+        siz = sizj*idim
+        call mpi_recv (val,siz, $3, 0, tag
+     &                 , mpi_comm_world, mpi_stato, mpi_erro)
+        endif      
+
+*        call mpi_barrier (mpi_comm_world, mpi_erro)       
+ 
+        return
+        end
+*end
+
+$exec master_to_slave real8 real(r8) mpi_real8
+$exec master_to_slave real4 real(r4) mpi_real4
+$exec master_to_slave integer4 integer(i4) mpi_integer4
+$exec master_to_slave logical1 logical*1 mpi_logical1
+

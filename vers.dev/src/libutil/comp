@@ -1,0 +1,40 @@
+ 
+makedir
+#---------------------------
+pwd=`pwd`
+#---------------------------
+
+obj=`dir obj`
+library=$lib/libutil.a
+ 
+include="-I. "
+if [ -d $gdal/include ] ; then include=$include" -I$gdal/include " ; fi
+if [ -d $gdalinclude ] ; then include=$include" -I$gdalinclude " ; fi
+echo include=$include
+
+$CC *.c -c   $more_flag $CFLAGS $include -D$hostser -D$cpusize 
+ 
+#------------------------------------------------------
+if [ $comp90 = gfortran ] ; then
+export more_flag=$more_flag" -J$mod -I$mod "
+
+elif [ $comp90 = lf95 ] ; then
+export more_flag=$more_flag" -M$mod"
+	if [ "$ext" = f90 ] ; then export more_flag=$more_flag" --nfix" ; fi
+
+elif [ $comp90 = ifort ] ; then
+export more_flag=$more_flag" -module $mod"
+fi
+#------------------------------------------------------
+
+$FC *.F -c -D$comp $flag $more_flag $include $FFLAGS
+ 
+ 
+if [ -f $library ]
+then rm $library
+fi
+ 
+$ar -qv $library *.o
+$ar -ts $library
+ 
+mv *.o  $obj

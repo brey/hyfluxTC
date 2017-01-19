@@ -1,0 +1,557 @@
+	subroutine covervalnew1 (mask,val,beach,findbeach,nmax
+     &                  ,nradius,idp,npcr,ncol,nrow,recalc,method,nv
+     &                  ,existweight,weightval,dist)
+	implicit none
+	integer*4 npcr,nmax,nradius,ncol,nrow, nv, method
+	logical*1 mask(npcr)
+	real*4 val(npcr),weightval(npcr), dist(npcr), idp
+	integer*1 beach(npcr)
+        logical findbeach, recalc, test,fit, aver, existweight, krig
+c local variables
+ 
+	real*4,    allocatable :: weight(:,:), w(:)
+     &            ,x(:,:), y(:),valold(:),dist0(:),ii(:),jj(:)
+        real*8, allocatable :: a(:,:),b(:),a0(:,:),b0(:)
+     &         ,cosa(:,:),sina(:,:),cosb(:),sinb(:)
+	integer*4, allocatable :: ind(:), pt(:,:),npt(:), pt0(:)
+	logical*1, allocatable :: maskval(:), maskold(:), ip(:)
+ 
+	logical*4 first /.true./, ok
+	real*4 vaL1, sumweight
+	integer*4 ivaL1, i, j, l,m,n,nbeach, ier, nril, np, n1
+	integer*4 L1,L2,m1,j1
+
+	equivalence (vaL1,ivaL1)
+ 
+	real*4     mv /z'ffffffff'/, sumweight
+	integer*4  mv4, imv /z'ffffffff'/, length, nvar 
+	integer*1  mv1
+
+c---------------------------------------------
+c krig variables and functions
+c
+        real*4  distance,variance,disfun,sinfun,cosfun
+     &         ,dif1,dif2,dx,dy,dis1,sdev,filter /2./
+        real*8 bb(10),cc(10),eps /1.e-30/
+        real*8  dis,coss,sinn
+        real*8 range, fac/1.0d0/
+        logical clean /.true./
+
+        distance(dif1,dif2) = sqrt(dif1*dif1+dif2*dif2)
+        disfun(dis) =  (1.-exp(-dis/range))        
+*       sinfun(dif1,dis) = (dif1)/max(dis,1.d0)
+*       cosfun(dif1,dis) = (dif1)/max(dis,1.d0)
+        sinfun(dif1,dis) = (dif1)
+        cosfun(dif1,dis) = (dif1)
+
+
+
+
+
+
+        variance(dis,coss,sinn) = cc(1)+disfun(dis)
+     &                           *(cc(2)+cc(3)*coss+cc(4)*sinn)
+
+c---------------------------------------------
+	save first,maskval, maskold, ind, pt, npt, weight
+c---------------------------------------------
+
+        fit  = method .eq. 1
+        krig = method .ge. 2
+
+	if (first) 	then
+	call getmv1(mv1)
+	call getmv4(mv4)
+	allocate (maskval(npcr),maskold(npcr),valold(npcr),ii(npcr),jj(npcr))
+          if (fit) then
+          allocate (x(nmax,nv),y(nmax),w(nmax))
+          endif
+
+        l=0
+          do i = 1,nrow
+            do j = 1,ncol
+            l = l+1
+            ii(l) = i
+            jj(l) = j
+            enddo
+          enddo
+	endif
+ 
+c define mask of the available values: mask is true for TRUE VALUES
+ 
+	  do i = 1,npcr
+	  vaL1 = val(i)
+	  maskval(i) = ivaL1 .ne. imv
+	  enddo
+ 
+c see if new map has the same mask of old map
+ 
+	if (.not.first) then
+	ok = .true.
+	  do i =1,npcr
+	    if (.not.maskold(i).and.maskval(i)) ok = .false.
+	    if (maskold(i).and..not.maskval(i)) ok = .false.
+	  enddo
+ 
+	  if (ok) go to 400
+	
+	deallocate (ind,pt,npt,weight,dist0)
+c	print *,' evaluate new point int.'
+	endif
+ 
+	maskold = maskval
+c-------------------------------------------------------------------
+c find no. of beach values
+ 
+	j = 0
+	do i = 1,npcr
+        test = mask(i)
+        if (.not.recalc) test=test.and..not.maskval(i) 
+	  if (test) then
+	  j = j+1
+	  endif
+	enddo
+ 
+	nbeach = j
+	print *,'coverval: no. of MV =',nbeach
+ 
+c assign indeces
+ 
+	allocate (ind(nbeach),pt(nmax,nbeach),npt(nbeach)
+     &         ,weight(nmax,nbeach),dist0(nbeach))
+ 
+	ind = mv4
+ 
+	j = 0
+	do i = 1,npcr
+        test = mask(i)
+        if (.not.recalc) test=test.and..not.maskval(i) 
+	  if (test) then
+	  j = j+1
+	  ind(j)=i
+	  endif
+	enddo
+ 
+c------------------------------------------------------------------
+c construct indeces of neighboroud
+ 
+      call findindexnew (maskval,npcr,ind,pt,weight,dist0,npt,nmax,nbeach
+     &                  ,nradius,ncol,nrow,idp)
+ 
+	do  i = 1,nbeach
+        l=ind(i)
+
+	  if (npt(i).eq.0) then
+	  beach(l) = 1
+	  findbeach = .true.
+	  endif
+
+c if a beach value correspond to a not MV, means that a recalc is requested
+c in this case the weight is zero
+
+c redefine in case of maskval(l)==true (it appens only if recalc == true)
+
+          if (maskval(l)) then
+          npt(i) = npt(i)-1
+            do j = 1,npt(i)
+            weight(j,i)=weight(j+1,i)
+            pt(j,i)=pt(j+1,i)
+            enddo
+          endif
+
+c if  a weight or a recalc is requested, the weights are recalculated
+
+        if (existweight.or.maskval(l)) then
+        sumweight = 0
+          do j = 1,npt(i)
+          L1 = pt(j,i)
+          weight(j,i) = weight(j,i)*weightval(L1)
+          sumweight = sumweight + weight(j,i)
+          enddo
+        sumweight = 1/sumweight
+          do j = 1,npt(i)
+          weight(j,i) = weight(j,i)*sumweight
+          enddo
+        endif
+
+	enddo
+ 
+c------------------------------------------------------------------
+c cover MV
+
+ 
+400	continue
+
+        valold = val
+c---------------------------------------------------------
+	do 300 i = 1,nbeach
+
+        aver = method .eq. 0
+
+	l = ind(i)
+c---------------------------------------------------------
+	  if (npt(i).le.0) go to 300
+c---------------------------------------------------------
+        if (fit.and.(npt(i).le.nv)) aver = .true.
+        if (krig.and.(npt(i).le.2)) aver = .true.
+c---------------------------------------------------------
+        if ((.not.aver).and.fit) then
+          do j = 1,npt(i)
+          L1 = pt(j,i)
+          x(j,1) = 1.
+          x(j,2) = ii(L1) - ii(L)
+          x(j,3) = jj(L1) - jj(L)
+           if (nv.eq.6) then
+           x(j,4) = x(j,2)*x(j,3)
+           x(j,5) = x(j,2)*x(j,2)
+           x(j,6) = x(j,3)*x(j,3)
+           endif
+          y(j) = valold(L1)
+          w(j) = weight(j,i)
+          enddo
+        call cormul (x,y,w,npt(i),nmax,bb,nv,ier)
+          if (ier.eq.0) then
+          val(l) = bb(1)
+          val(l) = min(max(val(l)
+     &            ,minval(y(1:npt(i))) ),maxval(y(1:npt(i))) )
+          else
+          print *,'FIT: error for cell ',l
+          aver = .true.
+          endif
+        endif
+c---------------------------------------------------------
+c ordinary kriging
+c---------------------------------------------------------
+        if ((.not.aver).and.krig) then
+        nril = npt(i)*npt(i)
+          if (npt(i).ge.5.and.method.eq.3) then
+          nvar = 4
+          else
+          nvar = 2
+          endif
+        allocate (a(npt(i)+1,npt(i)+1),b(npt(i)+1)
+     &           ,a0(npt(i)+1,npt(i)+1),b0(npt(i)+1)
+     &           ,cosa(npt(i),npt(i)),cosb(npt(i))
+     &           ,sina(npt(i),npt(i)),sinb(npt(i))
+     &           ,x(nril,nvar),y(nril),w(nril)
+     &           ,ip(npt(i)),pt0(npt(i)) )
+
+c j are rows
+c m are columns
+
+        np = npt(i)
+          do j = 1,np
+          pt0 (j) = pt(j,i)
+          enddo
+
+c evaluate distance and range
+
+        a = 1.d0
+        a (np+1,np+1) = 0.d0
+        b = 1.d0
+        cosa = 0.d0
+        cosb = 0.d0
+        sina = 0.d0
+        sinb = 0.d0
+
+        range = 0.d0
+        n = 0
+        do j = 1,np
+        L1 = pt0(j)
+        dx = ii(L1)-ii(L)
+        dy = jj(L1)-jj(L)
+        dis1 = distance(dx,dy)
+        b(j) = dis1
+          if (nvar.eq.4) then
+          cosb(j) = cosfun(dx,dis1)
+          sinb(j) = sinfun(dy,dis1)
+          endif
+
+          do m = j,np
+          n = n+1
+          L2 = pt0(m)
+          dx = ii(L2)-ii(L1)
+          dy = jj(L2)-jj(L1)
+          dis1 = distance(dx,dy)
+          range = range+dis1
+          a(j,m) = dis1
+            if (nvar.eq.4) then
+            cosa(j,m) = cosfun(dx,dis1)
+            sina(j,m) = sinfun(dy,dis1)
+            endif
+
+c load simmetric element
+
+          a(m,j) = a(j,m)
+            if (j.ne.m) then
+            cosa(m,j) = -cosa(j,m)
+            sina(m,j) = -sina(j,m)
+            endif
+          enddo
+        enddo
+
+c should be better
+
+        range = min(fac*range/n,dfloat(nradius))
+
+c evaluate variance
+        n = 0
+        do j = 1,np
+        L1 = pt0(j)
+          do m = 1,np
+          n = n+1
+          L2 = pt0(m)
+          x(n,1) = 1.
+          x(n,2) = disfun(a(j,m))
+            if (nvar.eq.4) then
+
+
+
+
+            x(n,3) = x(n,2)*cosa(j,m)
+            x(n,4) = x(n,2)*sina(j,m)
+
+            endif
+          y(n)   = (valold(L1)-valold(L2))**2
+          w(n)   = 1.
+*         w(n)   = (nradius/a(j,m))**idp
+          enddo
+        enddo
+
+        if (maxval(y)-minval(y).lt.eps) then
+        aver = .true.
+        goto 100
+        endif
+
+*       print *,'x=',x(1:nril,2)
+*       print *,'y=',y
+
+c evaluate experimental variogram
+        call cormul (x,y,w,n,nril,bb,nvar,ier)
+          if (ier.ne.0) then
+          print *,'KRIG: error in evaluating exp. variogram for cell ',l
+            do j=1,nril
+            print *,'y=',y(j),'x=',x(j,1:nvar)
+            enddo
+          aver = .true.
+          goto 100
+          endif
+
+*       print *,'bb=',bb
+
+
+        cc = 0.d0
+        cc(1:nvar) = bb(1:nvar)
+
+c..........................................
+        if (clean) then
+
+c evaluate deviation  on variance
+
+        sdev = 0.d0
+
+        n = 0
+        do j = 1,np
+          do m = 1,np
+          n = n+1
+          sdev = sdev + (y(n)-variance(a(j,m),cosa(j,m),sina(j,m)))**2
+          enddo
+        enddo
+
+        sdev = filter*sqrt(sdev/n)
+*       print *,'sdev=',sdev
+
+c verify points 
+
+        ip = .true.
+
+        n = 0
+        do j = 1,np
+          do m = 1,np
+          n = n+1
+            if ((variance(a(j,m),cosa(j,m),sina(j,m))-y(n)).gt.sdev) then
+            ip(j) = .false.
+            endif
+          enddo
+        enddo
+
+        np = count(ip(1:np))
+
+*       print *,'np=',np,' ip=',ip
+
+        if (np.eq.npt(i)) go to 200
+
+        if (nvar.eq.2.and.np.le.2) aver = .true.
+        if (nvar.eq.4.and.np.le.4) aver = .true.
+        if (aver) go to 100
+
+c recalculate again
+
+
+c evaluate distance and range
+
+        a = 1.d0
+        a (np+1,np+1) = 0.d0
+        b = 1.d0
+        cosa = 0.d0
+        cosb = 0.d0
+        sina = 0.d0
+        sinb = 0.d0
+
+        range = 0.d0
+        n = 0
+        do j = 1,np
+        L1 = pt0(j)
+        dx = ii(L1)-ii(L)
+        dy = jj(L1)-jj(L)
+        dis1 = distance(dx,dy)
+        b(j) = dis1
+          if (nvar.eq.4) then
+          cosb(j) = cosfun(dx,dis1)
+          sinb(j) = sinfun(dy,dis1)
+          endif
+
+          do m = j,np
+          n = n+1
+          L2 = pt0(m)
+          dx = ii(L2)-ii(L1)
+          dy = jj(L2)-jj(L1)
+          dis1 = distance(dx,dy)
+          range = range+dis1
+          a(j,m) = dis1
+            if (nvar.eq.4) then
+            cosa(j,m) = cosfun(dx,dis1)
+            sina(j,m) = sinfun(dy,dis1)
+            endif
+
+c load simmetric element
+
+          a(m,j) = a(j,m)
+            if (j.ne.m) then
+            cosa(m,j) = -cosa(j,m)
+            sina(m,j) = -sina(j,m)
+            endif
+          enddo
+        enddo
+
+c should be better
+
+        range = min(fac*range/n,dfloat(nradius))
+
+c evaluate variance
+        n = 0
+        do j = 1,np
+        L1 = pt0(j)
+          do m = 1,np
+          n = n+1
+          L2 = pt0(m)
+          x(n,1) = 1.
+          x(n,2) = disfun(a(j,m))
+            if (nvar.eq.4) then
+
+
+
+
+            x(n,3) = x(n,2)*cosa(j,m)
+            x(n,4) = x(n,2)*sina(j,m)
+
+            endif
+          y(n)   = (valold(L1)-valold(L2))**2
+          w(n)   = 1.
+*         w(n)   = (nradius/a(j,m))**idp
+          enddo
+        enddo
+
+        if (maxval(y)-minval(y).lt.eps) then
+        aver = .true.
+        goto 100
+        endif
+
+*       print *,'x=',x(1:nril,2)
+*       print *,'y=',y
+
+c evaluate experimental variogram
+        call cormul (x,y,w,n,nril,bb,nvar,ier)
+          if (ier.ne.0) then
+          print *,'KRIG: error in evaluating exp. variogram for cell ',l
+            do j=1,nril
+            print *,'y=',y(j),'x=',x(j,1:nvar)
+            enddo
+          aver = .true.
+          goto 100
+          endif
+
+*       print *,'bb=',bb
+
+
+        cc = 0.d0
+        cc(1:nvar) = bb(1:nvar)
+
+        else
+        np = npt(i)
+        endif
+
+200     continue
+c..........................................
+c update matrix with variance
+
+        do j = 1,np
+        b(j) = variance(b(j),cosb(j),sinb(j))
+          do m = 1,np
+          a(j,m) = variance(a(j,m),cosa(j,m),sina(j,m))
+          enddo
+        enddo
+
+        if (maxval(b(1:np))-minval(b(1:np)).lt.eps) then
+        aver = .true.
+        goto 100
+        endif
+         
+c evaluate weights
+        
+        a0 = a
+        b0 = b
+        call simeq (a,b,np+1,npt(i)+1,ier)
+          if (ier.eq.0) then
+	  val(l) = 0.
+	    do j = 1,np
+	    val(l) = val(l) + valold(pt(j,i))*b(j)
+	    enddo
+*         print *,'b=',b
+          else
+          print *,'KRIG: error in evaluating weights for cell ',l
+          print *,'bb=',bb
+            do j=1,np+1
+            print *,'b=',b0(j),'a=',a0(j,1:(np+1))
+            enddo
+          aver = .true.
+          endif
+
+100     continue
+        deallocate (a0,b0,x,y,w)
+        deallocate (a,b)
+        deallocate (cosa,cosb,sina,sinb,ip,pt0)
+        endif
+c---------------------------------------------------------
+        if (aver) then
+	val(l) = 0.
+	  do j = 1,npt(i)
+	  val(l) = val(l) + valold(pt(j,i))*weight(j,i)
+	  enddo
+        endif
+c---------------------------------------------------------
+        dist(l) = dist0(i)
+
+*	print *,'valnew=',val(l),(val(pt(j,i)),j=1,npt(i))
+300   continue
+ 
+	do i = 1,npcr
+	  if (.not.mask(i)) then
+          val(i) = mv
+          dist(i) = mv
+          endif
+	enddo
+ 
+	first = .false.
+	return
+	end

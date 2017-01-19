@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="Windows-1252" ?><kml>
+<Document>
+<name>$Title.</name>
+<open>1</open>
+
+<!--                                      -->
+<!--             Epicenter                -->
+<!--                                      -->
+
+<Placemark>
+ <name>Epicenter 
+$Title. 
+</name>
+
+  <description><![CDATA[
+<table width=250><td valign=top>
+<tr><td>Date of Tsunami </td><td> <b>$DateTsunami.</b> </td> </tr>
+<tr><td>Magnitude </td><td> <b>$Mag.</b> (Richter scale) </td> </tr>
+<tr><td>Longitude</td><td> <b>$Lon.</b> (deg) </td> </tr>
+<tr><td>Latitude</td><td> <b>$Lat.</b> (deg </td> </tr>
+<tr><td>Depth</td><td><b>$depth.</b> (km)  (top of the fault) </td> </tr>
+<tr><td>Depth</td><td><b>$ipodepth.</b> (km)  (middle of the fault) </td> </tr>
+<tr><td></td><td> <b> </td> </tr>
+<tr><td>Strike</td><td> <b>$strike    (deg) (North=0)  </td> </tr>
+<tr><td>Dip</td><td> <b>$dip   (deg)   </td> </tr>
+<tr><td>Rake</td><td> <b>$rake   (deg)  </td> </tr>
+<tr><td></td><td> <b> </td> </tr>
+<tr><td>Length</td><td> <b>$flenght  (km)  </td> </tr>
+<tr><td>Width</td><td> <b>$fwidth (km)  </td> </tr>
+<tr><td>Slip</td><td> <b>$slip  (m)   </td> </tr>
+<tr><td></td><td> <b> </td> </tr>
+<tr><td>Max. water Height</td><td> <b>$maxzmax.</b> (m)  </td> </tr>
+<tr><td>at location</td><td> <b>$placezmax.</b>  </td> </tr>
+
+</table>
+]]></description>
+
+
+  <styleUrl>root://styleMaps#default+nicon=0x304+hicon=0x314</styleUrl>
+  <Style>
+    <IconStyle>
+      <color>ff0000ff</color>
+      <Icon>
+      <href>http://maps.google.com/mapfiles/kml/pal3/icon46.png</href>        </Icon>
+      <hotSpot x="32" y="1" xunits="pixels" yunits="pixels"/>
+    </IconStyle>
+  </Style>
+		<LookAt>
+			<longitude>$Lon </longitude>
+			<latitude>$Lat </latitude>
+			<altitude>0</altitude>
+			<range>20000</range>
+			<tilt>0</tilt>
+			<altitudeMode>relativeToGround</altitudeMode>
+			<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+		</LookAt>
+
+  <Point> 
+<coordinates>$Lon.,$Lat.,0</coordinates>
+  </Point>
+</Placemark>
+
+
+<!--                                -->
+<!--            LOCATIONS           -->
+<!--                                -->
+
+<Folder> <name>Locations</name>
+
+<!-- * ID	country	place	MaxHei	ArrTime	tMaxHei	ArrivalTS	lon	lat  -->
+<!--  
+idMes latMes   longMes	zmaxSea		zmaxShore	simInundation	simRunup	simDistRunup	tarrShore	tzmaxShore	simMaxHeight	$namePlace   
+-->
+
+<Locations>
+<Placemark>
+<name><![CDATA[ 
+$MaxHei 
+/ $maxHeight
+]]></name>
+
+<description><![CDATA[
+<table width=$width.><td valign=top>
+Country: <b>$country.</b> <br />
+Location: <b>$place.</b> <br />
+CityClass: $cityclass <br />
+Population: $popest <br />
+Lon/Lat: $lon./$lat.  <br />
+Time of Arrival(hh:mm): $ArrTime <br />
+Time of Maximum Height (hh:mm): $tMaxHei <br />
+Date of Arrival: $ArrivalTS <br />
+Date of Maximum Height: $dateMaxHei <br />
+Maximum Height (m): <b>$MaxHei.</b> <br />
+Maximum Height in deep water (m): $zmaxSea <br />
+Maximum Height in the shoreline (m): $zmaxShore <br />
+Maximum Inundation Height (m): $simInundation <br />
+Runup distance from shoreline (m): $simDistRunup <br />
+Measured Maximum Height (m): $maxHeight <br />
+</td> 
+<td> <img src="$plot."> </td> 
+</table>
+]]> </description>
+
+	  <Style>
+        <IconStyle>
+          <color> $color </color>
+          <scale>0.8</scale>
+          <Icon>
+             <href>root://icons/palette-4.png</href>
+                     <y>160</y><w>32</w><h>32</h>          </Icon>
+          <hotSpot x="32" y="1" xunits="pixels" yunits="pixels"/>
+       </IconStyle>
+		<LabelStyle>
+		<scale>0.8</scale>
+		</LabelStyle>    
+    </Style>
+		<LookAt>
+			<longitude>$lon.</longitude>
+			<latitude>$lat.</latitude>
+			<altitude>0</altitude>
+			<range>20000</range>
+			<tilt>0</tilt>
+			<altitudeMode>relativeToGround</altitudeMode>
+			<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+		</LookAt>
+    <Point>
+        <coordinates>$lon.,$lat.,0</coordinates>
+    </Point>
+</Placemark>
+</Locations>
+
+</Folder>
+
+
+<!--                            -->
+<!--          Images            -->
+<!--                            -->
+
+  
+<Folder>
+
+<name>Images</name>
+<Images>
+<GroundOverlay>
+<name>$nameImage.</name>
+<visibility>1</visibility>
+<description><![CDATA[ $description. ]]></description>
+<Region>
+<LatLonAltBox>
+	<north>  $north </north>
+	<south> $south </south>
+	<east> $east </east>
+	<west> $west </west>
+</LatLonAltBox>
+    <Lod_inactive>
+          <minLodPixels>$minLod </minLodPixels>
+          <maxLodPixels>$maxLod </maxLodPixels> 
+    </Lod_inactive>
+</Region>
+<Icon>
+<href>$outRasterMap.</href> </Icon>
+<LatLonBox>
+	<north>  $north </north>
+	<south> $south </south>
+	<east> $east </east>
+	<west> $west </west>
+</LatLonBox>
+</GroundOverlay>
+</Images>
+
+</Folder>
+
+   </Document>
+   </kml>

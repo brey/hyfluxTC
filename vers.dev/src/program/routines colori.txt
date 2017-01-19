@@ -1,0 +1,247 @@
+
+
+void getColHeight(float hei, int * colred, int * colgreen, int * colblue)
+
+{
+
+                // california colors
+
+ 
+
+    float hgray = 0.05;
+
+    float HCutOff = 0.1;
+
+    float hmax = 3;
+
+    
+
+    if (hei > 0)
+
+                {
+
+        if (hei > hgray && hei < HCutOff)
+
+                                {
+
+            *colred = 128;
+
+            *colgreen = 128;
+
+            *colblue = 128;
+
+                                }
+
+ 
+
+        if ( hei >= HCutOff && hei < hmax )
+
+                                {
+
+                *colred = 255;
+
+                *colgreen = ((hei - HCutOff) * 256);
+
+                if (*colgreen < 0) colgreen = 0;
+
+                *colblue = 0;
+
+                                }
+
+        if (hei >= hmax)
+
+                                {
+
+                                        *colred = 248; *colgreen = 248;
+*colblue = 232;
+
+                
+
+                                }
+
+                }
+
+                else
+
+                {
+
+        if (hei < -HCutOff)
+
+                                {
+
+            *colgreen = (-hei - HCutOff) / 1 * 256;
+
+            *colblue = *colgreen;
+
+            *colred = 0;
+
+                                }
+
+        else
+
+                                {
+
+                                                *colgreen = -1;
+
+            *colblue = -1;
+
+            *colred = -1;
+
+                                }
+
+                }
+
+    
+
+    if (*colblue  > 255)  *colblue = 255;
+
+    if (*colgreen > 255)  *colgreen = 255;
+
+    if (*colred   > 255)  *colred = 255;
+
+ 
+
+}
+
+ 
+
+void getColDepth(float d, int * colred, int * colgreen, int * colblue)
+
+{
+
+                char FillColor1[]="255,255,255";
+
+                float hei;
+
+                if (d <= 0)
+
+                                {
+
+                                                hei = -d;
+
+                                                //' World Premium colors
+
+                                                // montains
+
+                                                if (hei > 8000 )
+{*colred=130;*colgreen=77;*colblue=47;}
+
+                                if (hei >= 7000 && hei < 8000 )
+{*colred=163;*colgreen=100;*colblue=60;}
+
+                                if (hei >= 6000 && hei < 7000 )
+{*colred=176;*colgreen=117;*colblue=65;}
+
+                                if (hei >= 5000 && hei < 6000 )
+{*colred=191;*colgreen=137;*colblue=86;}
+
+                                if (hei >= 4000 && hei < 5000 )
+{*colred=199;*colgreen=150;*colblue=103;}
+
+                                if (hei >= 3000 && hei < 4000 )
+{*colred=193;*colgreen=165;*colblue=126;}
+
+                                if (hei >= 2000 && hei < 3000 )
+{*colred=206;*colgreen=185;*colblue=113;}
+
+                                if (hei >= 1000 && hei < 2000 )
+{*colred=230;*colgreen=215;*colblue=142;}
+
+                                if (hei >= 500 && hei < 1000 )
+{*colred=219;*colgreen=232;*colblue=155;}
+
+                                if (hei >= 200 && hei < 500 )
+{*colred=199;*colgreen=227;*colblue=134;}
+
+                                if (hei >= 0 && hei < 200 )
+{*colred=170;*colgreen=207;*colblue=108;}
+
+                                }                              
+
+                else                                        
+
+                                {                              
+
+                                                // oceans
+
+                                if (d > 0 && d <= 200 )
+{*colred=222;*colgreen=251;*colblue=252;}
+
+                                if (d > 200 && d <= 500 )
+{*colred=182;*colgreen=247;*colblue=250;}
+
+                                if (d > 500 && d <= 1000 )
+{*colred=167;*colgreen=231;*colblue=250;}
+
+                                if (d > 1000 && d <= 2000 )
+{*colred=154;*colgreen=213;*colblue=255;}
+
+                                if (d > 2000 && d <= 3000 )
+{*colred=145;*colgreen=198;*colblue=255;}
+
+                                if (d > 3000 && d <= 4000 )
+{*colred=128;*colgreen=183;*colblue=255;}
+
+                                if (d > 4000 && d <= 5000 )
+{*colred=114;*colgreen=174;*colblue=255;}
+
+                                if (d > 5000 && d <= 6000 )
+{*colred=100;*colgreen=160;*colblue=250;}
+
+                                if (d > 6000 && d <= 7000 )
+{*colred=85;*colgreen=148;*colblue=242;}
+
+                                if (d > 7000 && d <= 8000 )
+{*colred=79;*colgreen=130;*colblue=240;}
+
+                                if (d > 8000 && d <= 9000 )
+{*colred=79;*colgreen=98;*colblue=240;}
+
+                                if (d > 9000 && d <= 10000 )
+{*colred=50;*colgreen=81;*colblue=219;}
+
+                                if (d > 10000 )
+{*colred=30;*colgreen=61;*colblue=199;}
+
+ 
+
+                                //if (false)
+
+                                //{
+
+                                                float d1 ;
+
+                                                float rr,gg,bb;
+
+                                                d1= d;
+
+                                                if (d1 > 8000 )  d1 = 8000;
+
+                                                //bb= 23002 - d1 / 8000 *
+(23002 - 13002);
+
+                                                //if (bb>255) bb=255;
+
+ 
+
+                                                *colblue=255;
+
+                                                rr= 216 - d1 / 8000 * (216 -
+13);
+
+                                                *colred =rr;
+
+                                                *colgreen = *colred;
+
+                    //}
+
+                   }
+
+                                
+
+ 
+
+ 
+
+}
+

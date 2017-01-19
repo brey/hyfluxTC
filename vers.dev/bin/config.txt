@@ -1,0 +1,97 @@
+
+****************
+*Output options
+****************
+*
+outTxt                =false
+*
+outHTif_exec_SWAN     =true
+outHTif_exec_TILES=false
+outHTif_post          =false
+*
+outuvTif_exec_SWAN    =true
+outuvTif_exec_TILES=false
+outuvTif_post         =false
+*
+outBMP                =false
+outJPG                =false
+*
+outGIF_exec_SWAN      =true
+outGIF_exec_TILES =false
+outGIF_post_SWAN      =false
+outGIF_post_HYFLUX    =true
+outGIF_post_NAMIDANCE =true
+outGIF_post_COMCOT =true
+outGIF_post_MOST      =true
+outGIF_post_CORR      =false
+*
+checkWatchPoints_exec_SWAN =true
+checkWatchPoints_exec_TILES=true
+checkWatchPoints_post_SWAN =false
+checkWatchPoints_post_HYFLUX =true
+checkWatchPoints_post_NAMIDANCE =true
+checkWatchPoints_post_COMCOT =true
+checkWatchPoints_post_MOST =true
+checkWatchPoints_post_CORR =true
+*
+outkml_exec_SWAN      =true
+outkml_exec_TILES     =false
+outkml_post_SWAN      =false
+outkml_post_HYFLUX    =true
+outkml_post_NAMIDANCE =true
+outkml_post_COMCOT =true
+outkml_post_MOST =true
+outkml_post_CORR      =false
+*
+outGifAnimation_exec  =false
+outGifAnimation_post  =true
+outGifAnimation_post_CORR=false
+*
+intermediateAnimation =true
+intermediateAnimation_CORR =false
+*
+tifH2netcdf_exec_SWAN =true
+tifH2netcdf_exec_TILES=false
+tifH2netcdf_post_SWAN =false
+tifH2netcdf_post_HYFLUX=true
+tifH2netcdf_post_NAMIDANCE=true
+tifH2netcdf_post_COMCOT=true
+tifH2netcdf_post_CORR=false
+*
+tifuv2netcdf          =true
+*
+writeWPtxtFiles_exec_SWAN=true
+writeWPtxtFiles_exec_TILES=true
+writeWPtxtFiles_post_SWAN=false
+writeWPtxtFiles_post_HYFLUX=true
+writeWPtxtFiles_post_NAMIDANCE=true
+writeWPtxtFiles_post_COMCOT=true
+writeWPtxtFiles_post_MOST=true
+writeWPtxtFiles_post_CORR=true
+*
+formatBat             =GTiff  
+inFormat              =GTiff  
+inFormat_NAMIDANCE    =netcdf
+inFormat_MOST         =netcdf_NOAA
+*
+outFormat             =GTiff 
+outFormat_CORR        =netcdf 
+outFormat_NAMIDANCE   =netcdf 
+outFormat_MOST        =netcdf_NOAA
+*
+tarFilesAndDelete     =true
+deleteAnimFiles       =true
+deleteAnimFiles_NAMIDANCE=false
+deleteAnimFiles_COMCOT=false
+deleteAnimFiles_MOST=false
+*
+outTTT_TILES=false
+*
+* HYFLUX flags
+mapfmt = PCRaster
+mapext = .map
+outfmt = GTiff
+outext = .tif
+radius=6378388.
+houtmin = 1e-7
+voutmin = 1e-7

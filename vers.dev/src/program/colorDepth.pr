@@ -1,0 +1,31 @@
+
+hgray = 0.05;
+HCutOff = 0.1;
+hmax = 3
+colgreenMax=248
+
+ncol=colgreenMax+1
+
+colgreen=aprog(ncol,0,colgreenMax) 
+hei=HCutOff+(hmax-HCutOff)*colgreen/colgreenMax
+maxval=256
+colred = dim(ncol,maxval);
+colblue = dim(ncol,0);
+
+colred_(ncol)=248
+colblue_(ncol)=232
+
+colgreen0=aprog(ncol,colgreenMax,0) 
+hei0=-HCutOff-(hmax-HCutOff)*colgreen0/colgreenMax
+colblue0=colgreen0
+colred0 = dim(ncol,0);
+
+hei1=(-1e6,hei0(:ncol-1),-HCutOff,hei) 
+hei2=hei0,HCutOff,hei(2:),1e6 
+colred=colred0/maxval,-1,colred/maxval 
+colgreen=colgreen0/maxval,-1,colgreen/maxval 
+colblue=colblue0/maxval,-1,colblue/maxval
+
+write colDepth.txt hei1 hei2 colred colgreen colblue 
+
+

@@ -1,0 +1,411 @@
+#define DEB c
+
+*proc sendCore
+c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        subroutine $1_sendCore (val, idim, i,jcore, tag)
+c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        use parallel_data
+       use constants
+        implicit none
+        integer tag, i, idim, i1, io(2), jcore
+        $2 val(*)
+
+*        print *,'$1_send ',i,' icore =',icore,' to =',jcore
+
+        i1 = pf(i)*idim+1
+        call mpi_send (val(i1),sc(i)*idim, $3, jcore, tag
+     &               , mpi_comm_world, mpi_erro)
+
+*     ! NO!     call mpi_barrier (mpi_comm_world, mpi_erro)
+
+
+        return
+        end
+
+*proc recvCore
+c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        subroutine $1_recvCore (val, idim, i,jcore, tag)
+c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        use parallel_data
+       use constants
+        implicit none
+        integer tag, i, idim, i1, io(2), jcore
+        $2 val(*)
+
+*        print *,'$1_recv ',i,' icore=',icore,' from =',jcore
+
+        i1 = pf(i)*idim + 1
+        call mpi_recv (val(i1),sc(i)*idim, $3, jcore, tag
+     &               , mpi_comm_world, mpi_stato, mpi_erro)
+
+*     ! NO!     call mpi_barrier (mpi_comm_world, mpi_erro)       
+
+        return
+        end
+
+*proc getLR
+c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        subroutine $1_getLR (val, idim, tag)
+c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        use parallel_data
+       use constants
+        implicit none
+        integer tag, idim
+        $2 val(*)
+c left
+        if (RIGHT) call $1_sendCore(val, idim, 3,icore+1, tag)
+
+        if (LEFT)  call $1_recvCore(val, idim, 1,icore-1, tag)
+
+*        call mpi_barrier (mpi_comm_world, mpi_erro)       
+c right
+        if (LEFT)  call $1_sendCore(val, idim, 2,icore-1, tag)
+
+        if (RIGHT) call $1_recvCore(val, idim, 4,icore+1, tag)
+
+*        call mpi_barrier (mpi_comm_world, mpi_erro)       
+ 
+        return
+        end
+
+*proc getL
+c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        subroutine $1_getL (val, idim, tag)
+c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        use parallel_data
+       use constants
+        implicit none
+        integer tag, idim
+        $2 val(*)
+c left
+        if (RIGHT) call $1_sendCore(val, idim, 3,icore+1, tag)
+
+        if (LEFT)  call $1_recvCore(val, idim, 1,icore-1, tag)
+
+*        call mpi_barrier (mpi_comm_world, mpi_erro)       
+ 
+        return
+        end
+
+*proc putL
+c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        subroutine $1_putL (val, idim, tag,ifun)
+c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        use parallel_data
+       use constants
+        implicit none
+        integer tag, idim, siz, i1, i2, i, j, k, ifun
+        $2 val(*)
+
+*        print *,'$1_putR icore =',icore
+
+        if (LEFT) then 
+        i = 1
+        i1 = pf(i)*idim + 1
+        siz = sc(i)*idim
+        call mpi_send (val(i1),siz, $3, icore-1, tag
+     &               , mpi_comm_world, mpi_erro)
+        endif
+
+        if (RIGHT) then
+        i = 3
+        i1 = pf(i)*idim 
+        siz = sc(i)*idim
+        i2 = i1 + siz
+        i1 = i1 + 1
+        call mpi_recv ($4 ,siz, $3, icore+1, tag
+     &               , mpi_comm_world, mpi_stato, mpi_erro)
+            if (ifun.eq.Fmov) then
+            val(i1:i2) = $4(1:siz)
+
+#ifdef FLOAT then
+            else if (ifun.eq.Fsum) then
+            val(i1:i2) = val(i1:i2) + $4(1:siz)
+
+            else if (ifun.eq.Fdif) then
+            val(i1:i2) = val(i1:i2) - $4(1:siz)
+
+            else if (ifun.eq.Fmin) then
+            k = i1 
+              do j = 1,siz
+              val(k) = min(val(k),$4(j))
+              k = k + 1 
+              enddo
+
+            else if (ifun.eq.Fmax) then
+            k = i1 
+              do j = 1,siz
+              val(k) = max(val(k),$4(j))
+              k = k + 1 
+              enddo
+#else ifdef LOGICAL then
+            else if (ifun.eq.For) then
+            k = i1 
+              do j = 1,siz
+              val(k) = val(k) .or. $4(j)
+              k = k + 1 
+              enddo
+
+            else if (ifun.eq.Fand) then
+            k = i1 
+              do j = 1,siz
+              val(k) = val(k) .and. $4(j)
+              k = k + 1 
+              enddo
+#endif
+            else
+            write (iout,*) 'ifun=',ifun
+            call logout(2,'Error in $1_putR')
+            endif
+        endif 
+
+*        call mpi_barrier (mpi_comm_world, mpi_erro)       
+
+        return
+        end
+
+*proc getR
+c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        subroutine $1_getR (val, idim, tag)
+c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        use parallel_data
+       use constants
+        implicit none
+        integer tag, idim
+        $2 val(*)
+
+*        print *,'$1_getR  icore =',icore
+        if (LEFT)  call $1_sendCore(val, idim, 2,icore-1, tag)
+
+        if (RIGHT) call $1_recvCore(val, idim, 4,icore+1, tag)
+
+*        call mpi_barrier (mpi_comm_world, mpi_erro)       
+ 
+        return
+        end
+
+*proc putR
+c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        subroutine $1_putR (val, idim, tag,ifun)
+c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        use parallel_data
+       use constants
+        implicit none
+        integer tag, idim, siz, i1, i2, i, j, k, ifun
+        $2 val(*)
+
+*        print *,'$1_putR icore =',icore
+
+        if (RIGHT) then
+        i = 4
+        i1 = pf(i)*idim + 1
+        siz = sc(i)*idim
+        call mpi_send (val(i1),siz, $3, icore+1, tag
+     &               , mpi_comm_world, mpi_erro)
+         endif        
+
+        if (LEFT) then
+        i = 2
+        i1 = pf(i)*idim 
+        siz = sc(i)*idim
+        i2 = i1 + siz
+        i1 = i1 + 1
+        call mpi_recv ($4 ,siz, $3, icore-1, tag
+     &               , mpi_comm_world, mpi_stato, mpi_erro)
+            if (ifun.eq.Fmov) then
+            val(i1:i2) = $4(1:siz)
+
+#ifdef FLOAT then
+            else if (ifun.eq.Fsum) then
+            val(i1:i2) = val(i1:i2) + $4(1:siz)
+
+            else if (ifun.eq.Fdif) then
+            val(i1:i2) = val(i1:i2) - $4(1:siz)
+
+            else if (ifun.eq.Fmin) then
+            k = i1 
+              do j = 1,siz
+              val(k) = min(val(k),$4(j))
+              k = k + 1 
+              enddo
+
+            else if (ifun.eq.Fmax) then
+            k = i1 
+              do j = 1,siz
+              val(k) = max(val(k),$4(j))
+              k = k + 1 
+              enddo
+#else ifdef LOGICAL then
+            else if (ifun.eq.For) then
+            k = i1 
+              do j = 1,siz
+              val(k) = val(k) .or. $4(j)
+              k = k + 1 
+              enddo
+
+            else if (ifun.eq.Fand) then
+            k = i1 
+              do j = 1,siz
+              val(k) = val(k) .and. $4(j)
+              k = k + 1 
+              enddo
+#endif
+            else
+            write (iout,*) 'ifun=',ifun
+            call logout(2,'Error in $1_putR')
+            endif
+        endif 
+
+*        call mpi_barrier (mpi_comm_world, mpi_erro)       
+
+        return
+        end
+
+*proc putLR
+c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        subroutine $1_putLR (val, idim, tag,ifun)
+c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        use parallel_data
+       use constants
+        implicit none
+        integer tag, idim, siz, ifun
+        $2 val(*)
+
+        call $1_putL (val, idim, tag,ifun)
+        call $1_putR (val, idim, tag,ifun)
+
+        return
+        end
+
+*proc master_to_slave
+c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        subroutine $1_master_to_slave (val, idim, tag)
+c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        use parallel_data
+       use constants
+        implicit none
+        integer tag, i, idim, i1
+        $2 val(*)
+
+        if (MASTER) then
+        do i = 1, ncore-1
+        i1  = (nv3(i)-1)*idim + 1
+        call mpi_send (val(i1),nvvL(i)*idim, $3, i, tag
+     &               , mpi_comm_world, mpi_erro)
+        enddo
+        endif      
+
+        if (SLAVE) then
+DEB        print '(2(a,i6)))',' $1_master_to_slave icore=',icore
+DEB     &                   ,' size=',nvvL(icore)
+        call mpi_recv (val,nvvL(icore)*idim, $3, 0, tag
+     &               , mpi_comm_world, mpi_stato, mpi_erro)
+        endif   
+    
+        return
+        end
+
+*proc slave_to_master
+c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        subroutine $1_slave_to_master (val, idim, tag)
+c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        use parallel_data
+       use constants
+        implicit none
+        integer tag, i, idim, i1
+        $2 val(*)
+
+        if (SLAVE) then
+        i1  = (nv1(icore)-nv3(icore))*idim + 1
+*        print *,'icore=',icore,' i1=',i1
+        call mpi_send (val(i1),nvv(icore)*idim, $3, 0, tag
+     &               , mpi_comm_world,  mpi_erro)
+        endif   
+
+        if (MASTER) then
+        do i = 1, ncore-1
+        i1  = (nv1(i)-1)*idim + 1
+*        print *,'i=',i,' i1=',i1
+        call mpi_recv (val(i1),nvv(i)*idim, $3, i, tag
+     &                ,  mpi_comm_world, mpi_stato, mpi_erro)
+        enddo
+        endif      
+   
+        return
+        end
+
+
+*proc calc_to_post
+c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        subroutine $1_calc_to_post (val, idim, tag)
+c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        use parallel_data
+       use constants
+        implicit none
+        integer tag, i, idim, i1
+        $2 val(*)
+
+        if (CALC) then
+        i1  = (nv1(icore)-nv3(icore))*idim + 1
+*        print *,'icore=',icore,' i1=',i1
+        call mpi_send (val(i1),nvv(icore)*idim, $3, ncore, tag
+     &               , mpi_comm_world,  mpi_erro)
+        endif   
+
+        if (POST) then
+        do i = 0, ncore-1
+        i1  = (nv1(i)-1)*idim + 1
+*        print *,'i=',i,' i1=',i1
+        call mpi_recv (val(i1),nvv(i)*idim, $3, i, tag
+     &                ,  mpi_comm_world, mpi_stato, mpi_erro)
+        enddo
+        endif      
+
+*        call mpi_barrier (mpi_comm_world, mpi_erro)       
+   
+        return
+        end
+
+*end
+
+
+$exec sendCore logical1 logical*1 mpi_logical1
+$exec sendCore integer1 integer*1 mpi_integer1
+$exec sendCore real4 real(r4) mpi_real4
+$exec sendCore real8 real(r8) mpi_real8
+
+$exec recvCore logical1 logical*1 mpi_logical1 
+$exec recvCore integer1 integer*1 mpi_integer1 
+$exec recvCore real4 real(r4) mpi_real4 
+$exec recvCore real8 real(r8) mpi_real8 
+
+$exec getLR logical1 logical*1  mpi_logical1
+$exec getLR integer1 integer*1  mpi_integer1
+$exec getLR real4 real(r4) mpi_real4 
+$exec getLR real8 real(r8) mpi_real8 
+
+$exec getR logical1 logical*1  mpi_logical1
+$exec getR real4 real(r4) mpi_real4
+$exec getR real8 real(r8) mpi_real8 
+
+$exec slave_to_master real4 real(r4)  mpi_real4
+
+$exec calc_to_post real4 real(r4)  mpi_real4
+$exec calc_to_post real8 real(r8)  mpi_real8
+
+$exec master_to_slave real4 real(r4)  mpi_real4
+$exec master_to_slave real8 real(r8)  mpi_real8
+$exec master_to_slave integer1 integer*1  mpi_integer1
+$exec master_to_slave integer4 integer*4  mpi_integer4
+$exec master_to_slave logical1 logical*1  mpi_logical1
+
+
+#define FLOAT
+$exec putR integer1 integer*1  mpi_logical1 my_ival1
+$exec putR real4 real(r4) mpi_real4 my_sval
+$exec putR real8 real(r8) mpi_real8 my_dval
+
+#undef FLOAT
+#define LOGICAL
+$exec putL logical1 logical*1  mpi_logical1 my_lval1
+$exec putR logical1 logical*1  mpi_logical1 my_lval1

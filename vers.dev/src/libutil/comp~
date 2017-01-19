@@ -1,0 +1,41 @@
+ 
+makedir
+#---------------------------
+pwd=`pwd`
+cd ..
+makedir
+module=`dir mod`
+cd $pwd
+#---------------------------
+
+ 
+cd ..
+lib=`dir obj`/libutil.a
+ 
+cd $pwd
+obj=`dir obj`
+
+rm `dir obj`/*.o
+ 
+$CC *.c -c -I.  $more_flag $CFLAGS -D$compiler -Daddunderscore -DCPU_LITTLE_ENDIAN
+ 
+if [ $comp = lf95 ] ; then
+export more_flag=$more_flag" -M $module "
+if [ "$ext" = f90 ] ; then export more_flag=$more_flag" --nfix" ; fi
+elif [ $hostser = alpha ] ; then
+export more_flag=$more_flag" -module $module"
+fi
+
+
+$FC *.F -c -I. -D$comp $flag $more_flag $FFLAGS
+ 
+mv *.o $obj
+ 
+if [ -f $lib ]
+then rm $lib
+fi
+ 
+$ar -qv $lib $obj/*.o
+$ar -ts $lib
+ 
+ 

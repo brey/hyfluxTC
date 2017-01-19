@@ -1,0 +1,388 @@
+1
+1
+   csftypes.h                                                                                          main0001  
+ +          *....*...1.........2.........3.........4.........5.........6.........7.*                            -
+   main0001                                    ../libutil/csftypes.h                                             
+ -                            *....*...1.........2.........3.........4.........5.........6.........7.*          +
+
+ -                                                                                                            1 +
+
+ =      1   #ifndef CSF__CSFTYPES                                                                             2 =
+ =      2   # define CSF__CSFTYPES                                                                            3 =
+ =      3                                                                                                     4 =
+ =      4   #ifndef lint                                                                                      5 =
+ =      5   # define RCS_ID_CSFTYPES_H "$Header: /home/pcrtree/SRC.RCS/libs/csf/RCS/                          6 =
+ =      6   #endif                                                                                            7 =
+ =      7                                                                                                     8 =
+ =      8   #ifdef __cplusplus                                                                                9 =
+ =      9    extern "C" {                                                                                    10 =
+ =     10   #endif                                                                                           11 =
+ =     11                                                                                                    12 =
+ =     12   #ifdef CSF_V1                                                                                    13 =
+ =     13   # error new include file used while CSF_V1 is defined                                            14 =
+ =     14   #endif                                                                                           15 =
+ =     15                                                                                                    16 =
+ =     16                                                                                                    17 =
+ =     17   /* MACHINE AND OPERATING SYSTEM DEPENDENT SECTION:                                               18 =
+ =     18    * (LOOK AND CONFIGURE YOUR MACHINE/OS)                                                          19 =
+ =     19    *  - Retype all types for file i/o                                                              20 =
+ =     20    *  - Define endian mode                                                                         21 =
+ =     21    *  - Compliance mode (POSIX/XOPEN)                                                              22 =
+ =     22    */                                                                                              23 =
+ =     23                                                                                                    24 =
+ =     24   #ifdef THINK_C                                                                                   25 =
+ =     25   # error read notes in csftypes.h                                                                 26 =
+ =     26     /* Some history:                                                                               27 =
+ =     27      *   THINK C 3.0:                                                                              28 =
+ =     28      *     - does not know the keyword signed                                                      29 =
+ =     29      *     - uses a 12-byte for double if compiled with                                            30 =
+ =     30      *       the in-line 68881 option                                                              31 =
+ =     31      */                                                                                            32 =
+ =     32   #endif                                                                                           33 =
+ =     33                                                                                                    34 =
+
+ +     34   #ifdef __alpha                                                                                      -
+
+ -                            #if defined __alpha                                                            35 +
+
+ =     35    /* the only 64 bit cpu we tested on:                                                            36 =
+ =     36     * don't use long                                                                               37 =
+ =     37     */                                                                                             38 =
+ =     38   # define CSF_4BYTE_INT_SIZE_SPECIFIER                                                            39 =
+
+ -                                                                                                           40 +
+ -                            #elif defined intel64                                                          41 +
+ -                            # define CSF_4BYTE_INT_SIZE_SPECIFIER                                          42 +
+ -                                                                                                           43 +
+
+ =     39   #else                                                                                            44 =
+ =     40   # define CSF_4BYTE_INT_SIZE_SPECIFIER long                                                       45 =
+ =     41   #endif                                                                                           46 =
+ =     42                                                                                                    47 =
+ =     43   /* some old C++ compiler complains                                                               48 =
+ =     44    * about signed                                                                                  49 =
+ =     45    */                                                                                              50 =
+ =     46   #ifdef SIGNED_NOT_IMPL                                                                           51 =
+ =     47   # define CSF_SIGNED_SPECIFIER                                                                    52 =
+ =     48   #else                                                                                            53 =
+ =     49   # define CSF_SIGNED_SPECIFIER signed                                                             54 =
+ =     50   #endif                                                                                           55 =
+ =     51                                                                                                    56 =
+ =     52   /* the last-character figure is the                                                              57 =
+ =     53    * size in bytes of the data type                                                                58 =
+ =     54    */                                                                                              59 =
+ =     55                                                                                                    60 =
+ =     56   typedef CSF_SIGNED_SPECIFIER                                char INT1;                           61 =
+ =     57   typedef CSF_SIGNED_SPECIFIER   short                        int  INT2;                           62 =
+ =     58   typedef CSF_SIGNED_SPECIFIER   CSF_4BYTE_INT_SIZE_SPECIFIER int  INT4;                           63 =
+ =     59                                                                                                    64 =
+ =     60   typedef unsigned                                        char UINT1;                              65 =
+ =     61   typedef unsigned           short                        int  UINT2;                              66 =
+ =     62   typedef unsigned           CSF_4BYTE_INT_SIZE_SPECIFIER int  UINT4;                              67 =
+ =     63                                                                                                    68 =
+ =     64   #undef CSF_4BYTE_INT_SIZE_SPECIFIER                                                              69 =
+ =     65   #undef CSF_SIGNED_SPECIFIER                                                                      70 =
+ =     66                                                                                                    71 =
+ =     67   typedef float               REAL4; /* IEEE-754 32-bit */                                         72 =
+ =     68   typedef double              REAL8; /* IEEE-754 64-bit */                                         73 =
+ =     69                                                                                                    74 =
+ =     70   /* endian mode                                                                                   75 =
+ =     71    * DEFINE WITH -D                                                                                76 =
+ =     72    * first probe a few:                                                                            77 =
+ =     73    */                                                                                              78 =
+ =     74                                                                                                    79 =
+ =     75   #ifdef _AIX                                                                                      80 =
+ =     76   /* IBM AIX defines this on RS/6000 */                                                            81 =
+ =     77   # ifndef CPU_BIG_ENDIAN                                                                          82 =
+ =     78   #  define CPU_BIG_ENDIAN                                                                         83 =
+ =     79   # endif                                                                                          84 =
+ =     80   #endif                                                                                           85 =
+ =     81                                                                                                    86 =
+ =     82   #ifdef sparc                                                                                     87 =
+ =     83   /* both cc and gcc defines this in SunOS */                                                      88 =
+ =     84   # define CPU_BIG_ENDIAN                                                                          89 =
+ =     85   #endif                                                                                           90 =
+ =     86                                                                                                    91 =
+ =     87   #ifdef mips                                                                                      92 =
+ =     88   /* works on the SGI machines */                                                                  93 =
+ =     89   # define CPU_BIG_ENDIAN                                                                          94 =
+ =     90   #endif                                                                                           95 =
+ =     91                                                                                                    96 =
+ =     92                                                                                                    97 =
+ =     93   #ifdef __alpha                                                                                   98 =
+ =     94   /* DEC alpha defines this */                                                                     99 =
+ =     95   # ifndef CPU_LITTLE_ENDIAN                                                                      100 =
+ =     96   #  define CPU_LITTLE_ENDIAN                                                                     101 =
+ =     97   # endif                                                                                         102 =
+ =     98   #endif                                                                                          103 =
+ =     99                                                                                                   104 =
+ =    100   #ifdef __i386__                                                                                 105 =
+ =    101   /* linux/gcc defines this on intel 80x86 platform */                                            106 =
+ =    102   # ifndef CPU_LITTLE_ENDIAN                                                                      107 =
+ =    103   #  define CPU_LITTLE_ENDIAN                                                                     108 =
+ =    104   # endif                                                                                         109 =
+ =    105   #endif                                                                                          110 =
+ =    106                                                                                                   111 =
+ =    107   #ifdef _M_IX86                                                                                  112 =
+ =    108   /* Borland C defines this */                                                                    113 =
+ =    109   # ifndef CPU_LITTLE_ENDIAN                                                                      114 =
+ =    110   #  define CPU_LITTLE_ENDIAN                                                                     115 =
+ =    111   # endif                                                                                         116 =
+ =    112   #endif                                                                                          117 =
+ =    113                                                                                                   118 =
+ =    114                                                                                                   119 =
+ =    115   #ifdef __hppa                                                                                   120 =
+ =    116   /* cc and gcc defines this on HP PA risc platform */                                            121 =
+ =    117   # ifndef CPU_BIG_ENDIAN                                                                         122 =
+ =    118   #  define CPU_BIG_ENDIAN                                                                        123 =
+ =    119   # endif                                                                                         124 =
+ =    120   #endif                                                                                          125 =
+ =    121                                                                                                   126 =
+ =    122   /* POSIX or XOPEN compliance                                                                    127 =
+ =    123    *  The only need for the POSIX or even XOPEN superset                                          128 =
+ =    124    *  over ANSI-C are                                                                             129 =
+ =    125    *  M_PI    HP-UX complained about that and it seems in XOPEN                                   130 =
+ =    126    * solution:                                                                                    131 =
+ =    127    *  M_PI is defined in situ in source files if it is not defined                                132 =
+ =    128    *    (most times in math.h)                                                                    133 =
+ =    129    * we probe a few systems to find if we may define it                                           134 =
+ =    130    */                                                                                             135 =
+ =    131                                                                                                   136 =
+ =    132   #ifdef __hpux                                                                                   137 =
+ =    133   # ifndef _XOPEN_SOURCE                                                                          138 =
+ =    134   #  define _XOPEN_SOURCE                                                                         139 =
+ =    135   # endif                                                                                         140 =
+ =    136   #endif                                                                                          141 =
+ =    137                                                                                                   142 =
+ =    138   /* END OF MACHINE AND OPERATING SYSTEM DEPENDENT SECTION                                        143 =
+ =    139    * NO NEED TO EDIT ANYTHING BELOW THIS POINT                                                    144 =
+ =    140    */                                                                                             145 =
+ =    141                                                                                                   146 =
+ =    142   #ifdef CPU_LITTLE_ENDIAN                                                                        147 =
+ =    143   # ifdef CPU_BIG_ENDIAN                                                                          148 =
+ =    144   #  error CPU_BIG_ENDIAN and CPU_LITTLE_ENDIAN are both defined                                  149 =
+ =    145   # endif                                                                                         150 =
+ =    146   # ifdef INTEL16                                                                                 151 =
+ =    147   #  define	IS_MV_REAL4(x)	(((const UINT2 *)(x))[1] == MV_UINT2)                                  152 =
+ =    148   #  define	IS_MV_REAL8(x)	(((const UINT2 *)(x))[3] == MV_UINT2)                                  153 =
+ =    149   # else                                                                                          154 =
+ =    150   #  define	IS_MV_REAL4(x)	((*((const UINT4 *)(x))) == MV_UINT4)                                  155 =
+ =    151   #  define	IS_MV_REAL8(x)	(((const UINT4 *)(x))[1] == MV_UINT4)                                  156 =
+ =    152   # endif                                                                                         157 =
+ =    153   #else                                                                                           158 =
+ =    154   # ifdef CPU_BIG_ENDIAN                                                                          159 =
+ =    155   #  ifdef CPU_LITTLE_ENDIAN                                                                      160 =
+ =    156   #   error CPU_BIG_ENDIAN and CPU_LITTLE_ENDIAN are both defined                                 161 =
+ =    157   #  endif                                                                                        162 =
+ =    158   #  define	IS_MV_REAL4(x)	(((const UINT4 *)(x))[0] == MV_UINT4)                                  163 =
+ =    159   #  define	IS_MV_REAL8(x)	(((const UINT4 *)(x))[0] == MV_UINT4)                                  164 =
+ =    160   # else                                                                                          165 =
+ =    161   #  error BYTE ORDER NOT SPECIFIED (CPU_LITTLE_ENDIAN or CPU_BIG_ENDIAN)                         166 =
+ =    162   # endif                                                                                         167 =
+ =    163   #endif                                                                                          168 =
+ =    164                                                                                                   169 =
+ =    165                                                                                                   170 =
+ =    166   /* PROJECTION                                                                                   171 =
+ =    167    */                                                                                             172 =
+ =    168   /* version 1 types, no longer used                                                              173 =
+ =    169    */                                                                                             174 =
+ =    170   #define PT_XY		0  /* XY-field (= PT_YINCT2B)                                                    175 =
+ =    171                               */                                                                  176 =
+ =    172   #define PT_UTM		1  /* Universal Transverse Mercator (= PT_YDECT2B)                              177 =
+ =    173                               */                                                                  178 =
+ =    174   #define PT_LATLON	2  /* Lattitude / Longitude (= PT_YDECT2B)                                    179 =
+ =    175                               */                                                                  180 =
+ =    176   #define PT_CART	        3  /* Carthesian (= PT_YDECT2B)                                         181 =
+ =    177                               */                                                                  182 =
+ =    178   #define PT_RDM		4  /* Rijks Driehoek Metingen stelsel (= PT_YDECT2B)                            183 =
+ =    179                               */                                                                  184 =
+ =    180   /* the only difference we make is whether Y increases from                                      185 =
+ =    181    * top to bottom or decreases from top to bottom                                                186 =
+ =    182    */                                                                                             187 =
+ =    183                                                                                                   188 =
+ =    184   typedef enum CSF_PT {                                                                           189 =
+ =    185                                                                                                   190 =
+ =    186   	/* * these two can be returned by or passed to a csf2 function */                              191 =
+ =    187   	PT_YINCT2B=0,    /* Y increase from top to bottom */                                           192 =
+ =    188   	PT_YDECT2B=1,    /* Y decrease from top to bottom */                                           193 =
+ =    189                                                                                                   194 =
+ =    190   	/* * this one CANNOT be returned by NOR passed to a csf2 function */                           195 =
+ =    191   	PT_UNDEFINED=100 /* just some value different from the rest */                                 196 =
+ =    192                                                                                                   197 =
+ =    193   } CSF_PT;                                                                                       198 =
+ =    194                                                                                                   199 =
+ =    195   /* DATATYPE                                                                                     200 =
+ =    196    * A.K.A. VALUESCALE                                                                            201 =
+ =    197    */                                                                                             202 =
+ =    198                                                                                                   203 =
+ =    199   /* historical errors don't use them:                                                            204 =
+ =    200    * #define VS_NOTCLASSIFIED 2	                                                                  205 =
+ =    201    * #define VS_CONTINUES 	 2                                                                     206 =
+ =    202    *                                                                                              207 =
+ =    203    * NOTE new VS_* types must be different from CR_* values                                       208 =
+ =    204    *      VS_BOOLEAN       0xE0 => 224                                                            209 =
+ =    205    *      VS_NOMINAL       0xE2 => 226                                                            210 =
+ =    206    *      VS_ORDINAL       0xF2 => 242                                                            211 =
+ =    207    *      VS_SCALAR        0xEB => 235                                                            212 =
+ =    208    *      VS_DIRECTION     0xFB => 251                                                            213 =
+ =    209    *      VS_LDD           0xF0 => 240                                                            214 =
+ =    210    *      VS_VECTOR        0xEC => 236                                                            215 =
+ =    211    *      VS_VECTOR        0xEC vector, not used yet                                              216 =
+ =    212    */                                                                                             217 =
+ =    213                                                                                                   218 =
+ =    214   typedef enum CSF_VS {                                                                           219 =
+ =    215                                                                                                   220 =
+ =    216   	/* * version 1 datatypes,                                                                      221 =
+ =    217   	 * these can be returned by BUT NOT passed to a csf2 function                                  222 =
+ =    218   	 */                                                                                            223 =
+ =    219           VS_NOTDETERMINED=0, /* version 1  */                                                    224 =
+ =    220           VS_CLASSIFIED   =1, /* version 1  */                                                    225 =
+ =    221           VS_CONTINUOUS 	=2, /* version 1  */                                                     226 =
+ =    222                                                                                                   227 =
+ =    223           /* * version 2 datatypes                                                                228 =
+ =    224   	 * these two can be returned by or passed to a csf2 function                                   229 =
+ =    225   	 */                                                                                            230 =
+ =    226           VS_BOOLEAN      =0xE0,/* boolean, always UINT1, values: 0,1 or M                        231 =
+ =    227           VS_NOMINAL      =0xE2,/* nominal, UINT1 or INT4 */                                      232 =
+ =    228           VS_ORDINAL      =0xF2,/* ordinal, UINT1 or INT4 */                                      233 =
+ =    229           VS_SCALAR       =0xEB,/* scalar, REAL4 or (maybe) REAL8 */                              234 =
+ =    230           VS_DIRECTION    =0xFB,/* directional REAL4 or (maybe) REAL8, -1                         235 =
+ =    231           VS_LDD          =0xF0,/* local drain direction, always UINT1, va                        236 =
+ =    232                                                                                                   237 =
+ =    233   	/* * this one CANNOT be returned by NOR passed to a csf2 function */                           238 =
+ =    234   	VS_UNDEFINED    =100 /* just some value different from the rest */                             239 =
+ =    235                                                                                                   240 =
+ =    236   } CSF_VS;                                                                                       241 =
+ =    237                                                                                                   242 =
+ =    238                                                                                                   243 =
+ =    239   /* CELL REPRESENTATION                                                                          244 =
+ =    240      CR_UINT1      0x00 =>   0                                                                    245 =
+ =    241      CR_INT4       0x26 =>  38                                                                    246 =
+ =    242      CR_REAL4      0x5A =>  90                                                                    247 =
+ =    243      CR_INT1	 0x04 =>   4                                                                         248 =
+ =    244      CR_INT2	 0x15 =>  21                                                                         249 =
+ =    245      CR_UINT2	 0x11 =>  17                                                                        250 =
+ =    246      CR_UINT4	 0x22 =>  34                                                                        251 =
+ =    247      CR_REAL8	 0xDB => 219                                                                        252 =
+ =    248      for vector types                                                                             253 =
+ =    249      CR_VECT4	0x??                                                                                254 =
+ =    250      CR_VECT8	0x??                                                                                255 =
+ =    251    */                                                                                             256 =
+ =    252                                                                                                   257 =
+ =    253   typedef enum CSF_CR {                                                                           258 =
+ =    254                                                                                                   259 =
+ =    255          /* * preferred version 2 cell representations                                            260 =
+ =    256           */                                                                                      261 =
+ =    257                                                                                                   262 =
+ =    258   	CR_UINT1      =0x00, /*  boolean, ldd and small nominal and small ordin                        263 =
+ =    259   	CR_INT4       =0x26, /*  large nominal and large ordinal */                                    264 =
+ =    260   	CR_REAL4      =0x5A, /*  single scalar and single directional */                               265 =
+ =    261                                                                                                   266 =
+ =    262          /* * other version 2 cell representations                                                267 =
+ =    263           */                                                                                      268 =
+ =    264                                                                                                   269 =
+ =    265   	CR_REAL8      =0xDB, /* double scalar or directional, and also the only                        270 =
+ =    266   	                      * can hold all                                                           271 =
+ =    267   	                      * cell representation without loss of precision                          272 =
+ =    268   	                      */                                                                       273 =
+ =    269                                                                                                   274 =
+ =    270          /* * version 1 cell representations                                                      275 =
+ =    271   	* these can be returned by BUT NOT passed to a csf2 function                                   276 =
+ =    272           */                                                                                      277 =
+ =    273                                                                                                   278 =
+ =    274   	CR_INT1	      =0x04, /* . */                                                                   279 =
+ =    275   	CR_INT2	      =0x15, /* . */                                                                   280 =
+ =    276   	CR_UINT2      =0x11, /* . */                                                                   281 =
+ =    277   	CR_UINT4      =0x22, /* . */                                                                   282 =
+ =    278                                                                                                   283 =
+ =    279   	/* * this one CANNOT be returned by NOR passed to a csf2 function */                           284 =
+ =    280                                                                                                   285 =
+ =    281           CR_UNDEFINED  =100 /* just some value different from the rest */                        286 =
+ =    282   } CSF_CR;                                                                                       287 =
+ =    283                                                                                                   288 =
+ =    284                                                                                                   289 =
+ =    285                                                                                                   290 =
+ =    286   /* how to get the cellsize from these type identifiers */                                       291 =
+ =    287   #define CSF_SIZE_MASK 		((size_t)0x03)                                                          292 =
+ =    288   #define CSF_SIGN_MASK		((size_t)0x04)                                                           293 =
+ =    289   #define CSF_FLOAT_MASK		((size_t)0x08)                                                          294 =
+ =    290   #define CSF_FLOAT_SIGN_MASK	((size_t)0x0C)                                                      295 =
+ =    291   #define CSF_SIZE_MV_MASK	((size_t)0x30)                                                         296 =
+ =    292   #define CSF_SKIP_MASK		((size_t)0xC0)                                                           297 =
+ =    293   /* low nibble is uniq for every CR_VALUE: */                                                    298 =
+ =    294   #define CSF_UNIQ_MASK	((size_t)0x0F)                                                            299 =
+ =    295   #define CSF_POS_SIZE_MV_MASK 	((size_t)4)                                                       300 =
+ =    296   #define CSF_POS_SKIP_MASK       ((size_t)6)                                                     301 =
+ =    297   #define CSF_UNIQ_CR_MASK(type)  ((size_t)((type) & CSF_UNIQ_MASK))                              302 =
+ =    298   #define LOG_CELLSIZE(type)  	((size_t)((type) & CSF_SIZE_MASK))                                 303 =
+ =    299   #define CELLSIZE(type)  	((size_t)(1 << LOG_CELLSIZE(type)))                                    304 =
+ =    300   #define CSFSIZEOF(nr, type)	((size_t)(((size_t)nr) << LOG_CELLSIZE(type)                        305 =
+ =    301                                                                                                   306 =
+ =    302   #include <float.h> /* FLT_MIN, DBL_MAX, DBL_MAX, FLT_MAX */                                     307 =
+ =    303                                                                                                   308 =
+ =    304   #define MV_INT1   ((INT1)0x80)                                                                  309 =
+ =    305   #define MV_INT2   ((INT2)0x8000)                                                                310 =
+ =    306   #define MV_INT4   ((INT4)0x80000000L)                                                           311 =
+ =    307                                                                                                   312 =
+ =    308   #define MV_UINT1  ((UINT1)0xFF)                                                                 313 =
+ =    309   #define MV_UINT2  ((UINT2)0xFFFF)                                                               314 =
+ =    310   #define MV_UINT4  ((UINT4)0xFFFFFFFFL)                                                          315 =
+ =    311                                                                                                   316 =
+ =    312   #define INT2_MIN  ((INT2)(MV_INT2+1))                                                           317 =
+ =    313   #define INT2_MAX  ((INT2)0x7FFF)                                                                318 =
+ =    314                                                                                                   319 =
+ =    315   #define UINT1_MIN ((UINT1)0)                                                                    320 =
+ =    316   #define UINT1_MAX ((UINT1)(MV_UINT1-1))                                                         321 =
+ =    317                                                                                                   322 =
+ =    318   #define INT4_MIN   ((INT4)(MV_INT4+1))                                                          323 =
+ =    319   #define INT4_MAX   ((INT4)0x7FFFFFFFL)                                                          324 =
+ =    320                                                                                                   325 =
+ =    321   #define REAL4_MIN  ((REAL4)(FLT_MIN))                                                           326 =
+ =    322   #define REAL4_MAX  ((REAL4)(FLT_MAX))                                                           327 =
+ =    323                                                                                                   328 =
+ =    324   #define REAL8_MIN  ((REAL8)(DBL_MIN))                                                           329 =
+ =    325   #define REAL8_MAX  ((REAL8)(DBL_MAX))                                                           330 =
+ =    326                                                                                                   331 =
+ =    327   /* MV_REAL4 is a NAN with the same bitpattern as MV_UINT4 */                                    332 =
+ =    328   /* MV_REAL8 is a NAN with the same bitpattern as two MV_UINT4's */                              333 =
+ =    329   /* only the first are already a NAN, so that's what we test */                                  334 =
+ =    330                                                                                                   335 =
+ =    331   /* x is a pointer to a value */                                                                 336 =
+ =    332   #define IS_MV_UINT1(x)	((*((const UINT1 *)x)) == MV_UINT1)                                      337 =
+ =    333   #define IS_MV_UINT2(x)	((*((const UINT2 *)x)) == MV_UINT2)                                      338 =
+ =    334   #define IS_MV_UINT4(x)	((*((const UINT4 *)x)) == MV_UINT4)                                      339 =
+ =    335   #define IS_MV_INT1(x)	((*((const INT1 *)x)) == MV_INT1)                                         340 =
+ =    336   #define IS_MV_INT2(x)	((*((const INT2 *)x)) == MV_INT2)                                         341 =
+ =    337   #define IS_MV_INT4(x)	((*((const INT4 *)x)) == MV_INT4)                                         342 =
+ =    338                                                                                                   343 =
+ =    339                                                                                                   344 =
+ =    340   /* some special values                                                                          345 =
+ =    341    */                                                                                             346 =
+ =    342   #define LDD_PIT          5                                                                      347 =
+ =    343   #define DIR_NODIRECTION -1                                                                      348 =
+ =    344                                                                                                   349 =
+ =    345   /* some special macro's                                                                         350 =
+ =    346    * x is a pointer                                                                               351 =
+ =    347    */                                                                                             352 =
+ =    348   #define SET_MV_UINT1(x)	( (*((UINT1 *)(x))) = MV_UINT1)                                         353 =
+ =    349   #define SET_MV_UINT2(x)	( (*((UINT2 *)(x))) = MV_UINT2)                                         354 =
+ =    350   #define SET_MV_UINT4(x)	( (*((UINT4 *)(x))) = MV_UINT4)                                         355 =
+ =    351   #define SET_MV_INT1(x)	( (*(( INT1 *)(x))) = MV_INT1)                                           356 =
+ =    352   #define SET_MV_INT2(x)	( (*(( INT2 *)(x))) = MV_INT2)                                           357 =
+ =    353   #define SET_MV_INT4(x)	( (*(( INT4 *)(x))) = MV_INT4)                                           358 =
+ =    354   #define	SET_MV_REAL4(x)	((*(UINT4 *)(x)) = MV_UINT4)                                            359 =
+ =    355   #define	SET_MV_REAL8(x)	SET_MV_REAL4((x)),SET_MV_REAL4((((UINT4 *)(x))+1                        360 =
+ =    356                                                                                                   361 =
+ =    357   /* copy of floats  by typecasting to                                                            362 =
+ =    358    * an integer since MV_REAL? is a NAN                                                           363 =
+ =    359    */                                                                                             364 =
+ =    360   #define	COPY_REAL4(dest,src) ( (*(UINT4 *)(dest)) = (*(const UINT4 *)(sr                        365 =
+ =    361   #define	COPY_REAL8(dest,src) COPY_REAL4((dest),(src)),\                                         366 =
+ =    362   		COPY_REAL4( (((UINT4 *)(dest))+1),(((const UINT4 *)(src))+1) )                                367 =
+ =    363                                                                                                   368 =
+ =    364   #ifdef __cplusplus                                                                              369 =
+ =    365    }                                                                                              370 =
+ =    366   #endif                                                                                          371 =
+ =    367                                                                                                   372 =
+ =    368   /* PREVENT DOUBLE INCLUSION CSF__CSFTYPES */                                                    373 =
+ =    369   #endif                                                                                          374 =

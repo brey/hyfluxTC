@@ -1,0 +1,141 @@
+
+**********************************************************************
+                    MODUL:                 ang.F                                   
+ ROUTINE          ang      nlines     29 ncomment      6 %  20.69
+
+**********************************************************************
+                    MODUL:                 checkmv.F                               
+ ROUTINE          main0001 nlines     14 ncomment      4 %  28.57
+
+**********************************************************************
+                    MODUL:                 coverval.F                              
+ ROUTINE          findinde nlines    236 ncomment     65 %  27.54
+
+**********************************************************************
+                    MODUL:                 filelist.F                              
+ ROUTINE          filelist nlines    170 ncomment     44 %  25.88
+ ROUTINE          changedi nlines     25 ncomment      2 %   8.00
+
+**********************************************************************
+                    MODUL:                 fillzero.F                              
+ ROUTINE          fillzero nlines     10 ncomment      1 %  10.00
+
+**********************************************************************
+                    MODUL:                 getm.F                                  
+ ROUTINE          main0001 nlines     30 ncomment      4 %  13.33
+
+**********************************************************************
+                    MODUL:                 gribinfo.F                              
+ ROUTINE          gribinfo nlines     69 ncomment     26 %  37.68
+
+**********************************************************************
+                    MODUL:                 indstring.F                             
+ ROUTINE          indstrin nlines     15 ncomment      2 %  13.33
+
+**********************************************************************
+                    MODUL:                 lddind.F                                
+ ROUTINE          lddind   nlines     43 ncomment      8 %  18.60
+
+**********************************************************************
+                    MODUL:                 length.F                                
+ ROUTINE          main0001 nlines     14 ncomment      2 %  14.29
+
+**********************************************************************
+                    MODUL:                 machine.F                               
+ ROUTINE          opnfree  nlines     24 ncomment      5 %  20.83
+ ROUTINE          iunfree  nlines     17 ncomment      4 %  23.53
+
+**********************************************************************
+                    MODUL:                 minmax.F                                
+ ROUTINE          minmax   nlines     15 ncomment      3 %  20.00
+
+**********************************************************************
+                    MODUL:                 neighbor.F                              
+ ROUTINE          main0001 nlines     47 ncomment      8 %  17.02
+
+**********************************************************************
+                    MODUL:                 nocr.F                                  
+ ROUTINE          main0001 nlines     16 ncomment      4 %  25.00
+
+**********************************************************************
+                    MODUL:                 numget.F                                
+ ROUTINE          vpl_data nlines     10 ncomment      2 %  20.00
+ ROUTINE          numget   nlines     50 ncomment      8 %  16.00
+ ROUTINE          valnum   nlines    187 ncomment     42 %  22.46
+
+**********************************************************************
+                    MODUL:                 opendb.F                                
+ ROUTINE          main0001 nlines    337 ncomment     71 %  21.07
+
+**********************************************************************
+                    MODUL:                 open_nimrod.F                           
+ ROUTINE          main0001 nlines    492 ncomment    203 %  41.26
+
+**********************************************************************
+                    MODUL:                 procheader.F                            
+ ROUTINE          main0001 nlines     50 ncomment     12 %  24.00
+
+**********************************************************************
+                    MODUL:                 readgrib1.F                             
+ ROUTINE          opengrib nlines    111 ncomment     37 %  33.33
+
+**********************************************************************
+                    MODUL:                 readgrib.F                              
+ ROUTINE          opengrib nlines    113 ncomment     37 %  32.74
+
+**********************************************************************
+                    MODUL:                 scriwingr.F                             
+ ROUTINE          scriwing nlines    116 ncomment     30 %  25.86
+ ROUTINE          scriwing nlines    112 ncomment     32 %  28.57
+ ROUTINE          scriwing nlines     92 ncomment     33 %  35.87
+ ROUTINE          writedb  nlines     47 ncomment      7 %  14.89
+
+**********************************************************************
+                    MODUL:                 sort_list.F                             
+ ROUTINE          sort_lis nlines     32 ncomment      7 %  21.88
+
+**********************************************************************
+                    MODUL:                 string_to_names.F                       
+ ROUTINE          main0001 nlines     30 ncomment      8 %  26.67
+
+**********************************************************************
+                    MODUL:                 torot.F                                 
+ ROUTINE          togeo    nlines     59 ncomment     24 %  40.68
+
+**********************************************************************
+                    MODUL:                 openmap.c                               
+ ROUTINE          main0001 nlines    423 ncomment    162 %  38.30
+
+**********************************************************************
+                    MODUL:                 putenv.c                                
+ ROUTINE          main0001 nlines     30 ncomment     12 %  40.00
+
+ ***************************************************
+modul ang.F                                     nroutines    1  nlines   29  ncomments    6  %  20.69
+modul checkmv.F                                 nroutines    1  nlines   14  ncomments    4  %  28.57
+modul coverval.F                                nroutines    1  nlines  236  ncomments   65  %  27.54
+modul filelist.F                                nroutines    2  nlines  195  ncomments   46  %  23.59
+modul fillzero.F                                nroutines    1  nlines   10  ncomments    1  %  10.00
+modul getm.F                                    nroutines    1  nlines   30  ncomments    4  %  13.33
+modul gribinfo.F                                nroutines    1  nlines   69  ncomments   26  %  37.68
+modul indstring.F                               nroutines    1  nlines   15  ncomments    2  %  13.33
+modul lddind.F                                  nroutines    1  nlines   43  ncomments    8  %  18.60
+modul length.F                                  nroutines    1  nlines   14  ncomments    2  %  14.29
+modul machine.F                                 nroutines    2  nlines   41  ncomments    9  %  21.95
+modul minmax.F                                  nroutines    1  nlines   15  ncomments    3  %  20.00
+modul neighbor.F                                nroutines    1  nlines   47  ncomments    8  %  17.02
+modul nocr.F                                    nroutines    1  nlines   16  ncomments    4  %  25.00
+modul numget.F                                  nroutines    3  nlines  247  ncomments   52  %  21.05
+modul opendb.F                                  nroutines    1  nlines  337  ncomments   71  %  21.07
+modul open_nimrod.F                             nroutines    1  nlines  492  ncomments  203  %  41.26
+modul procheader.F                              nroutines    1  nlines   50  ncomments   12  %  24.00
+modul readgrib1.F                               nroutines    1  nlines  111  ncomments   37  %  33.33
+modul readgrib.F                                nroutines    1  nlines  113  ncomments   37  %  32.74
+modul scriwingr.F                               nroutines    4  nlines  367  ncomments  102  %  27.79
+modul sort_list.F                               nroutines    1  nlines   32  ncomments    7  %  21.88
+modul string_to_names.F                         nroutines    1  nlines   30  ncomments    8  %  26.67
+modul torot.F                                   nroutines    1  nlines   59  ncomments   24  %  40.68
+modul openmap.c                                 nroutines    1  nlines  423  ncomments  162  %  38.30
+modul putenv.c                                  nroutines    1  nlines   30  ncomments   12  %  40.00
+
+ nmoduls = 26 nroutimes= 33 nlines= 3065 ncomment= 915 %   29.8531818

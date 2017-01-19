@@ -1,0 +1,54 @@
+      subroutine square (ii,jj,dist,nradius,kmax,k)
+      implicit none
+      integer nradius,i,j,L,kmax,k
+      integer*4 ii(kmax),jj(kmax)
+      real*4  dist(kmax),dist1,radius
+
+      radius = float(nradius)
+
+      k=1
+      ii(k) = 0
+      jj(k) = 0
+      dist(k) = 0
+c
+      do L = 1,nradius
+
+c up and down
+      do 100 i = -L,L
+      dist1 = sqrt(float(i*i)+float(L*L)) 
+        if (dist1.gt.radius) go to 100
+      k=k+1
+      ii(k) = i
+      jj(k) = L
+      dist(k) = dist1
+      k=k+1
+      ii(k) = i
+      jj(k) = -L
+      dist(k) = dist1
+100   continue
+
+c left and right
+      do 200 j = -L+1,L-1
+      dist1 = sqrt(float(j*j)+float(L*L)) 
+        if (dist1.gt.radius) go to 200
+      k=k+1
+      ii(k) = L
+      jj(k) = j
+      dist(k) = dist1
+      k=k+1
+      ii(k) = -L
+      jj(k) = j
+      dist(k) = dist1
+200   continue
+
+      enddo
+c
+      do L=1,k
+      print *,'ii=',ii(L),' jj=',jj(L),' dist=',dist(L)
+      enddo
+
+      return
+      end
+
+
+  
