@@ -22,6 +22,8 @@ logCalls.txt
 #work folders
 publicVM/
 storage/
+publicVM
+storage
 storage.local/
 
 # tif files in DATA
