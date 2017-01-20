@@ -1,0 +1,567 @@
+echo on
+maxcc=0
+clear
+
+wait off
+wait ?on/off
+
+%*************************************************************************
+%              WR2H PROGRAM
+%*************************************************************************
+
+
+%===========================================================================
+% INPUT DATA
+%===========================================================================
+% -------------------------------------------------------------------------
+% Const
+% -------------------------------------------------------------------------
+nm2m=1852
+kt2ms=nm2m/3600  % knots to m/s
+omega=2*pigr/(3600*24)
+rhoa=1.15
+ang deg
+radius=6378388
+deg2m=pigr*radius/180
+pn=101000
+tetaNE=45
+tetaNW=135
+tetaSW=225
+tetaSE=315
+npmin=2
+kmin=0
+kmax=0.15
+dpmin=10e2
+dpmax=200e2
+rvmaxmin=10e3
+bmin=0.8
+%bmax=2.5
+bmax=1.8
+
+b0=1.2
+rmax0=20e3
+
+maxR=500e3
+
+
+% -------------------------------------------------------------------------
+% Input/Output File
+% -------------------------------------------------------------------------
+setexp inpfo info.pr
+setexp info $1
+setexp info ?info
+
+setexp inpfile inpData.txt
+setexp inpfile $2
+setexp inpfile ?inpfile
+
+setexp outfile outData.txt
+setexp outfile $3
+setexp outfile ?outfile
+
+setexp outdirplot plot
+setexp outdirplot $4
+setexp outdirplot ?outdirplot
+
+%-------------------------------------------------------------------------
+
+exec info.pr
+
+bulNo=$bulNo
+
+%nb=$n
+
+nb=10000
+
+fk=0.92
+fvtr=1.0
+
+%fk=1.0
+%fvtr=0.01
+
+setexp title $hurName $bulNo $bulDate
+
+
+!if [ ! -d  $outdirplot ] \; then mkdir $outdirplot \; fi
+
+if (maxcc) close all
+
+% -------------------------------------------------------------------------
+% Read input File
+% -------------------------------------------------------------------------
+read $inpfile tab
+
+exec ../longSign.pr
+
+sig=sign(1,long)
+
+m=sig.ne.sig1
+if (sum(m).eq.0) goto next
+i=getm(m,do(size(m)))
+
+if (sig1.gt.0) long_i = long_i+360
+if (sig1.lt.0) long_i = long_i-360
+
+$$$$ next
+
+TIME =  time  
+LAT = lat
+LONG = long
+VMAX0 = vmax
+if (maxcc) close all
+ntime=size(TIME)
+
+deltaptot = dim (ntime,MV)
+btot = dim(ntime,MV)
+ktot=dim(ntime,MV)
+rmaxtot = dim(ntime,MV)
+vmax0tot = dim (ntime,MV)
+vmax0ktot = dim (ntime,MV)
+vmax1tot = dim (ntime,MV)
+vtrtot = dim (ntime,MV)
+vtrxtot = dim (ntime,MV)
+vtrytot = dim (ntime,MV)
+rmsetot=dim(ntime,MV)
+biastot=dim(ntime,MV)
+
+
+
+%==========================================================================
+% vt
+%==========================================================================
+if (ntime.le.1) goto extrapolate
+exec $cycloneDir./vtcalc.pr
+if (maxcc) goto next
+
+
+%write vtdata.txt vtr vtrx vtry sincl cincl tab
+
+vtr=vtr*fvtr
+vtrx=vtrx*fvtr
+vtry=vtry*fvtr
+
+SINFI = sincl
+COSFI = cincl
+VTR = vtr
+VTRX = vtrx
+VTRY = vtry
+
+goto next
+
+$$$$ extrapolate
+% extrapolate from previous bulletin
+
+read ../@(bulNo-1)./vtcal.txt tab
+family time1 sincl cincl vtr vtrx vtry
+if (maxcc) goto next
+
+SINFI = sincl(time+6)
+COSFI = cincl(time+6)
+VTR = vtr(time+6)
+VTRX = vtrx(time+6)
+VTRY = vtry(time+6)
+
+
+$$$$ next
+
+if (maxcc) then
+% set default values
+SINFI = 1
+COSFI = 0
+VTR = 0
+VTRX = 0
+VTRY = 0
+endif
+
+reset maxcc
+
+%==========================================================================
+% loop su tutti i dati
+%==========================================================================
+
+done=0
+t=0
+do lab0 ntime
+   t=t+1
+
+   time = TIME_t
+   lat = LAT_t
+   long = LONG_t
+   vmax0 = VMAX0_t
+   vmax0k = vmax0*fk
+   V0=(64, 64, 64, 64, 50, 50, 50, 50, 34, 34, 34, 34)*kt2ms*fk
+   R0=(64ne_t, 64se_t, 64sw_t, 64nw_t, 50ne_t, 50se_t, 50sw_t, 50nw_t, 34ne_t, 34se_t, 34sw_t, 34nw_t)*nm2m
+   an=(tetaNE, tetaSE, tetaSW, tetaNW,tetaNE, tetaSE, tetaSW, tetaNW,tetaNE, tetaSE, tetaSW, tetaNW)
+   vtr = VTR_t
+   vtrx = VTRX_t
+   vtry = VTRY_t
+   sinfi = SINFI_t
+   cosfi = COSFI_t   
+
+
+%--------------------------------------------------
+% Scelta valori validi
+%--------------------------------------------------
+   M=R0.ne.0.and.R0.lt.maxR
+   if (sum(M).ge.npmin) goto next
+
+   if (done) then
+   rmax = rmaxtot_(t-1)
+   b = btot_(t-1)
+   k = ktot_(t-1)
+
+   else
+   rmax = rmax0
+   b = b0
+   k = kmin
+   endif
+
+   bias=MV
+   rmse=MV
+
+   dp = vmax0^2*rhoa*exp(1)/b
+   deltaptot_t = dp
+   btot_t = b
+   rmaxtot_t = rmax 
+   vmax0tot_t = vmax0
+   vmax0ktot_t = vmax0k
+   vmax1tot_t = max(vmax0k-vtr, vmax0k/2)
+   vtrtot_t = vtr
+   vtrxtot_t = vtrx
+   vtrytot_t = vtry
+   ktot_t =k
+   biastot_t=bias
+   rmsetot_t = rmse
+   goto endlab0
+
+$$$$ next
+   l=do(size(M))
+   ivalid=getm(M,l)
+
+   V0 = V0_ivalid
+   R = R0_ivalid
+   an = an_ivalid
+   sinan = sin(an+90)
+   cosan=cos(an+90)
+
+   np=size(V0)
+
+%--------------------------------------------------
+% calcolo V wind radii (V - vtrasl)
+%--------------------------------------------------
+   RATIO = (rmax0/R)**b0  
+   EXPRATIO = exp(-RATIO)
+
+   VT=vtr*(cosfi * cosan + sinfi * sinan)*(1-EXPRATIO)
+%   VT=vtr*(cosfi * cosan + sinfi * sinan)*(RATIO)
+
+   if (lat.lt.0) VT=-VT
+   VV = V0-VT
+
+   % Calcolo di f WR
+
+   deltalatWR=R/deg2m*sin(an)
+   latWR=lat+deltalatWR
+
+   fWR=2*omega*abs(sin(latWR))
+   Vnco=((VV+R*fWR/2)^2-(R*fWR/2)^2)^(1/2)
+   V=Vnco
+
+
+%--------------------------------------------------
+% Scelta valori validi
+%--------------------------------------------------
+   M=V.gt.0
+
+   if (sum(M).eq.0) goto endlab0
+
+   l=do(size(M))
+   ivalid=getm(M,l)
+
+   V0 = V0_ivalid
+   VV = VV_ivalid
+   V=V_ivalid
+   R=R_ivalid
+
+%--------------------------------------------------
+%  Calcolo di vmax = vmax0 - vt
+%--------------------------------------------------
+   vmax0vt=max(vmax0k-vtr,max(V))
+
+
+%--------------------------------------------------   
+%  Calcolo di coriolis per vmax
+%--------------------------------------------------
+   if (lat.ge.0) then
+      %sinfivmax=sin(fi-90)=-cos(fi)
+      sinfivmax=-cosfi
+   else
+      %sinfivmax=sin(fi+90)=cos(fi)
+      sinfivmax=cosfi
+   endif
+
+
+echo off
+echo ?on/off
+
+
+%===========================================================================
+% Metodo Monte Carlo per det Rmax
+%===========================================================================
+   %intervalli k
+
+   if (np.gt.npmin) then
+   K=kmin+(kmax-kmin)*rand(nb)
+   else if (done) then
+   K = dim(nb,ktot_(t-1))
+   else
+   K = dim(nb,kmin)
+   endif
+
+   % Intervalli DP
+   DP=dpmin*(dpmax/dpmin)^rand(nb)   
+
+   % Intervalli Rmax
+rvmaxmin=min(rvmaxmin,min(R)*0.5)
+   RMAX=rvmaxmin*(min(R)*0.99/rvmaxmin)^rand(nb)
+
+%--------------------------------------------------
+% Calcolo di vmax1 = vmax0k -vt - effetto Coriolis (funzione di RMAX)
+%--------------------------------------------------
+   deltalatvmax=RMAX/deg2m*sinfivmax
+   latvmax=lat+deltalatvmax
+
+   fvmax=2*omega*abs(sin(latvmax))   
+
+  fvmax2=RMAX*fvmax/2
+   vmax1=((vmax0vt+fvmax2)^2-fvmax2^2)^(1/2)
+   vmax1=max(vmax1,max(V))
+ 
+%----------------------------------
+
+   B=(rhoa*exp(1)/DP)*vmax1^2  
+   m=B.ge.bmin.and.B.le.bmax.and.lat*latvmax.gt.0
+ nb1 = sum(m)
+
+   l = do(nb)
+   ii = getm(m,l)
+    
+   K=K_ii
+   DP=DP_ii
+   RMAX=RMAX_ii
+   B = B_ii
+
+nval = size(V)
+Vcalc = dim(nval*nb1)
+RMS = dim(nb1)
+
+   if (exist(r)) relwork r
+
+
+i=0
+i2 = 0
+  do loop1 nval
+ i=i+1
+  i1=i2+1
+  i2=i2+nb1
+  r = R_i
+  ratio=(r-RMAX)/(maxR-RMAX)
+  X=0.5 + min(max(ratio,0),1)*K    
+  Vcalc(i1:i2)=((B/rhoa) * DP* (RMAX/r)^B * exp(-(RMAX/r)^B))^X 
+    if (maxcc) close all
+  end loop1
+
+i = 0
+  do loop2 nb1
+  i=i+1    
+  RMS_i=sqrt(aver((Vcalc(i::nb1)-V)^2))
+    if (maxcc) close all
+  end loop2
+
+   value=nb1
+   totvalue=nb
+
+% -------------------------------------------------------------------------
+% Scelta Valori finali
+% -------------------------------------------------------------------------
+   m=RMS.eq.min(RMS)
+
+   rmse=getm(m,RMS)_1
+   dp=getm(m,DP)_1 
+   b=getm(m,B)_1
+   rmax=getm(m,RMAX)_1
+   k=getm(m,K)_1
+
+vmax1 = sqrt(b*dp/(rhoa*exp(1)))
+
+print t time rmse dp b rmax k  vmax0 vmax0k vmax0vt max(VV) max(V) vmax1
+
+
+%===========================================================================
+
+echo on
+echo ?on/off
+
+
+
+%******************************************************************************
+% PLOT Vg
+%******************************************************************************
+   Rmax=rmax
+
+   r=gprog(100,1000,max(R)*1.2) 
+   family r
+
+   ratio=(r-rmax)/(maxR-rmax)
+   x=0.5 + min(max(ratio,0),1)*k
+
+   Vg=( (b/rhoa) * dp* (Rmax/r)^b * exp(-(Rmax/r)^b) )^x 
+
+   bias=aver(Vg(R)-V)
+   rmse=sqrt(aver((Vg(R)-V)^2))
+
+%   write d_R#time R V
+%   write d_r#time r Vg
+   laser on
+   plot
+   x  R/1000 r/1000 0. #(maxR/1000) 
+   y  V Vg 0. 60.
+   line off  V 
+   symb on  V
+   label x Radius [km]
+   label y Velocity (m/s)
+   text $title TIME=#time     Size of random sample: @nb
+   text B=#b Rmax=#(Rmax/1000) [km]  DeltaP=#(dp/100) [mBar] k=#k Vmax_adv=#(vmax0) [m/sec] 
+   text rmse=#rmse bias=#bias value(\%)=#(value/totvalue*100) Vt=#vtr [m/sec] Vmax_Hol=#(vmax1) [m/sec] 
+   end
+   laser off
+   !convert laser.ps $outdirplot./vg_@time..gif
+
+%******************************************************************************
+   done = 1
+% -------------------------------------------------------------------------
+   deltaptot_t = dp
+   btot_t = b
+   rmaxtot_t = rmax 
+   vmax0tot_t = vmax0
+   vmax0ktot_t = vmax0k
+   vmax1tot_t = vmax1
+   vtrtot_t = vtr
+   vtrxtot_t = vtrx
+   vtrytot_t = vtry
+   ktot_t =k
+   biastot_t=bias
+   rmsetot_t = rmse
+
+   print t time 
+% -------------------------------------------------------------------------
+$$$$ endlab0
+end lab0
+
+
+
+ii=do(ntime)
+l=getm(.not.eqmv(btot),ii)
+
+
+time=TIME_l
+xhc=LONG_l
+yhc=LAT_l
+deltap=deltaptot_l
+rmax=rmaxtot_l
+b = btot_l
+k = ktot_l
+vmax0 = vmax0tot_l
+vmax0k = vmax0ktot_l
+vmax1 = vmax1tot_l
+vtr = vtrtot_l
+vtrx = vtrxtot_l
+vtry = vtrytot_l
+bias=biastot_l
+rmse = rmsetot_l
+
+
+%******************************************************************************
+% PLOT
+%******************************************************************************
+tmax=max(time)
+
+laser on
+plot
+x time 0. @tmax
+y b 0.4 2.4 
+label x Time [h]
+text TC $hurName
+label y B
+text Holland's Parameter (B)
+text Bulletin No. $bulNo. ($bulDate.)
+end
+laser off
+!convert laser.ps $outdirplot./b.gif
+
+
+rmaxkm=rmax/1000
+setexp rmaxkm Rmax
+laser on
+plot
+x time 0. @tmax
+y rmaxkm 0. 140.
+label x Time [h] 
+label y Rmax (km) 
+text TC $hurName
+text Radius of maximum wind (km)
+text Bulletin No. $bulNo. ($bulDate.)
+end
+laser off
+!convert laser.ps $outdirplot./rmax.gif
+
+deltapmb=deltap/100
+setexp deltapmb Deltap
+laser on
+plot
+x time 0. @tmax
+y deltapmb 0. 140.
+label x Time [h] 
+label y Deltap (mb)
+text TC $hurName
+text Pressure Drop (mb)
+text Bulletin No. $bulNo. ($bulDate.)
+end
+laser off
+!convert laser.ps $outdirplot./deltap.gif
+
+laser on
+plot
+x time 0. @tmax
+y k -0.2 0.3
+text TC $hurName
+text k parameter 
+text Bulletin No. $bulNo. ($bulDate.)
+end
+laser off
+!convert laser.ps $outdirplot./k.gif
+
+
+
+laser on
+plot
+x time 0. @tmax
+y vmax0 0. 80.
+label x Time [h] 
+label y Velocity (m/s)
+text TC $hurName
+text Vmax (m/s) 
+text Bulletin No. $bulNo. ($bulDate.)
+end
+laser off
+!convert laser.ps $outdirplot./vmax.gif
+
+check
+
+vmax=vmax0  %  original vmax as in inpData.txt
+vmax0=vmax1   % attenzione, in bulAdr.pr si aspetta che vmax0 sia vmax a 10 min average ,  meno coriolis e vel translazione
+
+write $outfile time xhc yhc b k rmax deltap vmax vmax0 vtr vtrx vtry bias rmse tab
+
+
+

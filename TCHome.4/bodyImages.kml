@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="Windows-1252" ?>
+<kml xmlns="http://www.opengis.net/kml/2.2" 
+xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
+<Document>
+<name> $Title </name>
+<open>1</open>
+
+
+<!--                                      -->
+<!--             Epicenter                -->
+<!--                                      -->
+
+<Placemark>
+  <name><![CDATA[ Cyclone center on $lastBulDate ]]></name>
+<description><![CDATA[
+<table width=350><td valign=top>
+Longitude= $Lon (deg) <br /> 
+Latitude = $Lat (deg) <br /> 
+Hurricane name = $hurName  <br /> 
+Hurricane ID = $hurId  <br /> 
+Basin = $basin  <br /> 
+Bulletin No = $toBul  <br /> 
+Simulation based on Bulletins $advNo  <br /> 
+Maximum water height (m) $maxzmax on location $placezmax   <br /> 
+Advisory wind velocity (m/s) $advWind cathegory $catAdvWind   <br /> 
+Maximum wind velocity (m/s) $maxWind cathegory $catMaxWind    <br /> 
+Date of max. wind velocity $dateMaxWind    <br /> 
+Bulletin of max. wind velocity $bulMaxWind   <br /> 
+Grid size of last simulation (min) $dxSimulation <br /> 
+Time (hh:mm) based on publication date $DateTsunami of Bulletin No. $fromBul  <br /> 
+Date of Simulation $pubDate  <br /> 
+<br /> 
+<a href=Calc_Input_deck.txt >  Input Deck </a>
+</td></table>
+]]></description>
+
+  <styleUrl>root://styleMaps#default+nicon=0x304+hicon=0x314</styleUrl>
+  <Style>
+    <IconStyle>
+      <color> ff0000ff </color>
+      <Icon>
+      <href>http://maps.google.com/mapfiles/kml/pal3/icon46.png</href>        </Icon>
+      <hotSpot x="32" y="1" xunits="pixels" yunits="pixels"/>
+    </IconStyle>
+  </Style>
+		<LookAt>
+			<longitude>$Lon </longitude>
+			<latitude>$Lat </latitude>
+			<altitude>0</altitude>
+			<range>20000</range>
+			<tilt>0</tilt>
+			<altitudeMode>relativeToGround</altitudeMode>
+!			<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+		</LookAt>
+
+  <Point> 
+<coordinates>$Lon.,$Lat.,0</coordinates>
+  </Point>
+</Placemark>
+
+
+<!--                            -->
+<!--          Images            -->
+<!--                            -->
+
+
+<Folder>
+<name>Images</name>
+<open>0</open>
+
+<Images>
+
+<!--          $nameRasterMap            -->
+
+<Folder> <name>$nameFolder.</name> 
+<GroundOverlay>
+<name>$nameImage.</name>
+<visibility>$visibility.</visibility>
+<color>bbffffff</color>
+<description><![CDATA[ $description. ]]></description>
+<Region>
+<LatLonAltBox>
+	<north>  $north </north>
+	<south> $south </south>
+	<east> $east </east>
+	<west> $west </west>
+</LatLonAltBox>
+    <Lod>
+          <minLodPixels>$minLod </minLodPixels>
+          <maxLodPixels>$maxLod </maxLodPixels>
+    </Lod>
+</Region>
+<Icon>	<href>$nameRasterMap.</href> </Icon>
+<LatLonBox>
+	<north>  $north </north>
+	<south> $south </south>
+	<east> $east </east>
+	<west> $west </west>
+</LatLonBox>
+</GroundOverlay>
+$endFolder
+</Images>
+
+</Folder>
+
+<!--                                -->
+<!--            LOCATIONS           -->
+<!--                                -->
+
+<Folder> <name>Locations</name>
+<open>0</open>

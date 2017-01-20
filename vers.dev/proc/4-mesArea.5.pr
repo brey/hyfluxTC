@@ -1,0 +1,1184 @@
+clear
+reset maxcc
+setexp start `pwd`
+%---------------------------------------
+% variables define externally
+% scripts, tmpdir, nested, procDir
+
+exec $scripts./4-project.pr
+
+%---------------------------------------
+setexp outexec > $tmpdir./outexec.txt 
+%setexp outexec 
+%---------------------------------------
+
+setexp dir work
+setexp dir $1
+setexp dir ?dir
+
+setexp folder coarse
+setexp folder $2
+setexp folder ?folder
+
+%---------------------------------------
+if (.not.exist(folder)) setexp folder $dir
+%---------------------------------------
+
+setexp nested $nested
+setexp yes  yes
+nested=compexp(nested,yes)
+
+%---------------------------------------
+setexp calcType $calcType
+setexp TSUNAMI  TSUNAMI
+tsunami=compexp(calcType,TSUNAMI)
+%---------------------------------------
+
+exec $procDir./4-map2kml.4.pr
+
+if (maxcc) close all
+
+%---------------------------------------
+if (.not.exist(maxLookRunup)) maxLookRunup=10000
+if (.not.exist(maxLookZsea)) maxLookZsea=5000
+if (.not.exist(maxDemPlace)) maxDemPlace=50
+if (.not.exist(maxDemSea)) maxDemSea=-20
+
+if (.not.exist(hmax)) hmax=2
+if (.not.exist(showvar)) showvar=1
+if (.not.exist(wout)) wout=0.01 
+
+if (.not.exist(maxid)) maxid = 1e6
+if (.not.exist(minzmax)) minzmax=0.1 
+if (.not.exist(minloc)) minloc = 10
+if (.not.exist(maxloc)) maxloc = 1000
+
+radius=6378388.
+fact=radius *pigr/180
+outkml=0
+
+print wout maxid minzmax minloc maxloc
+%--------------------------------------
+cd $start
+
+cd $dir
+
+ID   = dim(maxid)
+lat  = dim(maxid,MV)
+long = dim(maxid,MV)
+maxH = dim(maxid,MV)
+typeVal = dim(maxid,MV)
+mesVal=dim(maxid,MV)
+
+idmax=0
+%--------------------------------------
+
+% CAUTION: demSea.map = ../demLatLong.map + ../faultLatLong.map 
+getmap demSea demSea.map
+check
+
+
+n=size(demSea)
+
+II=getm(.not.eqmv(demSea),do(n))
+
+N=size(II)
+I=do(N)
+
+demSea=demSea_II
+
+ulx=max(int(XSTART)-1,-240)
+uly=min(int(YSTART)+1,70)
+lrx=min(int(XSTART+NCOLS*CELLSIZE)+1,300)
+lry=max(int(YSTART-NROWS*CELLSIZE)-1,-56)
+!gdal_translate -projwin #ulx #uly #lrx #lry  -of PCRaster -ot Float32 $popmap popmap0.map
+!resmap -clone demSea.map -i popmap0.map -o popmap.map -int 0 -nodata -32768 -setdata 0.
+
+getmap popden popmap.map
+popden=popden_II
+
+%--------------------------------------
+
+dx=CELLSIZE*fact
+ndig=int(log10(dx))
+dx=int(dx/10^ndig+0.5)*10^ndig
+
+if (.not.exist(runuplim)) runuplim=min(dx/5,200)
+
+print dx runuplim
+
+cellarea=(CELLSIZE/ (0.5/60)) ^2  %  cell area in km^2
+
+print cellarea
+
+y=min(dx*10,10000)
+x=logn(y/100)/logn(2)
+i=int(x)
+minDem=100*2^i
+
+%--------------------------------------
+
+radiusSea=maxLookZsea/fact
+radiusLand0=maxLookRunup/fact
+
+%--------------------------------------
+radiusSea=min(max(radiusSea,CELLSIZE*5),CELLSIZE*100)
+radiusLand0=min(max(radiusLand0,CELLSIZE*5),CELLSIZE*100)
+radius=max(radiusSea,radiusLand0)
+
+print radius radiusSea radiusLand0
+%------------------------------------------------
+
+if (.not.existF(watchFile)) goto next
+
+% idPlace	latPlace	longPlace	zPlace	cellNear	latNear	longNear	zNear	distNear	$namePlace
+
+read $watchFile tab
+if (maxcc) goto next
+
+idmax=max(idPlace)
+ID_idPlace = idPlace
+lat_idPlace = latNear
+long_idPlace = longNear
+typeVal_idPlace = -1
+
+$$$$ next
+reset maxcc
+
+%------------------------------------------------
+
+if (.not.exist(mesFile)) goto next
+if (.not.existF(mesFile)) goto next
+
+
+%  from NGDC data base
+%idMes	latMes	longMes	distance	Hrs	Min	maxHeight	$nameMes   
+% from survey
+%idMes	latMes	longMes	mesRunup	mesInundation	mesDistRunup	$nameMes
+
+read $mesFile tab
+if (maxcc) goto next
+
+
+i=0
+do lab1 size(idMes)
+i=i+1
+id=idMes_i
+rename nameMes@id namePlace@(id+idmax)
+end lab1
+
+idMes=idMes+idmax
+idmax=max(idMes)
+
+ID_idMes = idMes
+lat_idMes = latMes
+long_idMes = longMes
+
+if (exist(maxHeight)) then
+typeVal_idMes = maxHeight*0 + 2
+mesVal_idMes = maxHeight
+maxH_idMes = maxHeight
+endif
+
+
+$$$$ next
+reset maxcc
+
+%------------------------------------------------
+
+if (existF(statFile)) goto next
+line End of post processing because file $statFile non exist
+pend
+
+$$$$ next
+
+% idPlace	        tarr	        zmax	       tzmax	        vmax	  $namePlace
+
+read $statFile tab
+if (maxcc) goto next
+
+maxH_idPlace = zmax
+
+m=.not.eqmv(maxH)
+if (sum(m).eq.0) goto next
+
+do lab1 10
+print minzmax
+m = .not.eqmv(maxH).and.maxH.gt.minzmax
+if (minzmax.lt.0.01) eop
+if (minzmax.gt.1.00) eop
+if (sum(m).ge.minloc.and.sum(m).le.maxloc) eop
+if (sum(m).gt.maxloc) minzmax=minzmax*2
+if (sum(m).lt.minloc) minzmax=minzmax/2
+end lab1
+
+print minzmax sum(m)
+
+exLoc=0
+if (sum(m).eq.0) goto next1
+
+id=getm(m,do(size(maxH)))
+
+ID = ID_id
+lat = lat_id
+long = long_id
+maxH = maxH_id
+typeVal = typeVal_id
+mesVal = mesVal_id
+
+%--------------------------------------
+check
+
+
+x=long
+y=lat
+
+ix=int((x-XSTART)/CELLSIZE)+1 
+iy=int((YSTART-y)/CELLSIZE)+1 
+l=(iy-1)*NCOLS+ix
+
+m0=ix.ge.1.and.ix.le.NCOLS.and.iy.ge.1.and.iy.le.NROWS
+
+exLoc=sum(m0).gt.0
+
+
+$$$$ next1
+
+
+id1=dim(n,MV)
+
+if (exLoc) then
+lloc = getm(m0,l)
+iloc = getm(m0,do(size(l))) 
+id1_lloc = ID_iloc
+endif
+
+
+TYPE=2
+putmap id1 location.map
+id1=id1_II
+
+if (maxcc) goto endcalc
+
+
+%--------------------------------------
+
+maskSea=dim(n,1)
+
+TYPE=4
+putmap maskSea maskSV.map
+TYPE=1
+putmap maskSea maskBool.map
+relwork maskSea
+
+%--------------------------------------
+
+getmap shoreline shoreline.map
+shoreline = shoreline_II
+shore=.not.eqmv(shoreline)
+
+TYPE=4
+i=getm(shore.or..not.eqmv(id1),II)
+
+shoreInd=dim(n,MV)
+shoreInd_i = i
+
+putmap shoreInd shoreInd.map
+!MapInterp -m maskSV.map -i shoreInd.map -radius #radius -nmax 1
+
+getmap distShore dist.map
+distShore=distShore_II
+distShore=distShore*1000
+
+lookArea = dim(n,MV)
+
+%----------------------------------------------
+if (.not.exLoc) goto next
+%----------------------------------------------
+
+nloc=size(ID)
+i=do(nloc)
+
+lloc = getm(m0,l)
+iloc = getm(m0,i)
+
+
+if (exist(maxHeight)) then
+maxHeight0=mesVal
+else
+maxHeight0 = dim(nloc,MV)
+endif
+
+typeMes0=typeVal
+
+
+id1=dim(n,MV)
+id1_lloc = ID_iloc
+
+TYPE=2
+putmap id1 location.map
+
+getmap shoreInd shoreInd.map
+j=shoreInd_lloc
+relwork shoreInd shoreline
+
+m=.not.eqmv(j)
+exLoc = exLoc.and.sum(m).gt.0
+
+%----------------------------------------------
+check
+
+%----------------------------------------------
+if (.not.exLoc) goto next
+%----------------------------------------------
+
+j1=getm(m,j)
+lloc1=getm(m,lloc)
+lookArea_j1 = id1_lloc1
+
+relwork id1
+
+%--------------------------------------
+
+TYPE=4
+putmap lookArea lookArea.map
+if (maxcc) goto endcalc
+
+%--------------------------------------
+!MapInterp -m maskSV.map -i lookArea.map -radius #radius -nmax 1
+
+getmap lookArea lookArea.map
+TYPE=2
+putmap lookArea lookArea.map
+
+if (maxcc) goto endcalc
+
+%----------------------------------------------
+$$$$ next
+%----------------------------------------------
+
+lookArea = lookArea_II
+
+
+%--------------------------------------
+getmap zwmax zwmax.map
+zwmax=zwmax_II
+
+m=.not.(eqmv(distShore).or.eqmv(zwmax).or.eqmv(demSea)).and.demSea.gt.0
+radiusLand=CELLSIZE
+if (sum(m).gt.0) radiusLand=radiusLand+max(getm(m,distShore))
+radiusLand=min(max(radiusLand,2*CELLSIZE),radiusLand0)
+
+print radiusLand radiusSea
+
+land= .not.(shore.or.eqmv(demSea)) .and. (demSea.ge.0) .and. (demSea.lt.maxDemPlace) .and. (distShore.le.radiusLand)
+sea= .not.(shore.or.land.or.eqmv(demSea)) .and. (demSea.lt.maxDemSea) .and. (distShore.le.radiusSea) .and. (distShore.ge.CELLSIZE)
+
+runup = land  .or. shore
+
+print sum(shore) sum(land) sum(sea) sum(runup)
+
+
+TYPE=2
+
+areaShore=dim(n,MV)
+if (sum(shore).gt.0) then
+areaShore_getm(shore,II) = getm(shore,lookArea)
+putmap areaShore areaShore.map
+endif
+areaShore=areaShore_II
+
+
+areaRunup=dim(n,MV)
+if (sum(runup).gt.0) then
+areaRunup_getm(runup,II) = getm(runup,lookArea)
+putmap areaRunup areaRunup.map
+endif
+areaRunup=areaRunup_II
+
+relwork runup
+
+areaSea=dim(n,MV)
+if (sum(sea).gt.0) then
+areaSea_getm(sea,II) = getm(sea,lookArea)
+putmap areaSea areaSea.map
+endif
+areaSea=areaSea_II
+relwork  sea
+
+%--------------------------------------
+
+getmap depth0 depth.map
+if (.not.exist(depth0)) then
+maxcc=0
+getmap depth0 depth000.000
+endif
+
+getmap depth hzwmax.map
+
+Hmax = depth-depth0
+
+relwork depth depth0 
+Hmax=Hmax_II
+
+%--------------------------------------
+% wet fraction: MV replaced by 0
+
+getmap wfr0 wetfrac.map
+wfr0 = wfr0_II
+getmap wfr wzwmax.map
+wfr=wfr_II
+
+if (sum(land).gt.0) then
+i=getm(land,I)
+wfr0_i = 0
+endif
+
+
+wetfrac=wfr-wfr0
+
+m=eqmv(wetfrac)
+if (sum(m).gt.0) then
+i=getm(m,I)
+wetfrac_i = 0
+endif
+
+%--------------------------------------
+check
+%--------------------------------------
+
+distWet=dim(N,MV)
+
+m1=.not.(eqmv(distShore).or.eqmv(wfr).or.(wfr0.eq.1).or.eqmv(demSea)).and.distShore.ge.0.and..not.eqmv(zwmax)
+
+if (sum(m1).gt.0) then
+i=getm(m1,I)
+distWet_i = (distShore_i + (wfr_i-0.5)*CELLSIZE)*fact
+endif
+
+TYPE=4
+buff = dim(n,MV)
+buff_II = distWet
+putmap buff landWet0.map
+
+!mapsum -m maskBool.map -i landWet0.map -radius #(CELLSIZE*2) -idist idistWet.map
+getmap idist idistWet.map
+idist=idist_II
+
+m2=.not.eqmv(idist).and.idist.le.1.5.and.shore
+if (sum(m2).gt.0) then
+i=getm(m2,I)
+distWet_i = (wfr_i-wfr0_i)*CELLSIZE*fact
+endif
+
+%--------------------------------------
+relwork  land m1 m2 idist distShore shore
+%--------------------------------------
+setexp DRIVER GTiff
+
+m=eqmv(distWet).or.wetfrac.le.wout
+i=getm(m,I)
+
+%--------------------------------------
+%distWet_i=MV
+buff = dim(n,MV)
+buff_II = distWet
+putmap buff inundationDist.tif
+
+%--------------------------------------
+
+Hmax_i=MV
+buff = dim(n,MV)
+buff_II = Hmax
+putmap buff inundationDepth.tif
+
+relwork Hmax
+
+%--------------------------------------
+
+zwmax0=zwmax
+
+zwmax0_i=MV
+buff = dim(n,MV)
+buff_II = zwmax0
+putmap buff inundationHeight.tif
+
+relwork zwmax0
+
+%--------------------------------------
+popWet = popden * wetfrac  
+%popWet_i = MV
+buff = dim(n,MV)
+buff_II = popWet
+putmap buff inundationPop.tif
+
+setexp DRIVER PCRaster
+TYPE=4
+putmap buff inundationPop.map
+
+%--------------------------------------
+setexp DRIVER GTiff
+
+wetfrac_i = MV
+buff = dim(n,MV)
+buff_II = wetfrac
+putmap buff inundationFrac.tif
+
+setexp DRIVER PCRaster
+TYPE=4
+putmap buff inundationFrac.map
+
+
+relwork  wfr0 wfr
+
+%--------------------------------------
+
+getmap vnmax vnmax.map
+vnmax=vnmax_II
+setexp DRIVER GTiff
+
+vnmax_i=MV
+buff = dim(n,MV)
+buff_II = vnmax
+putmap buff inundationVel.tif
+
+relwork vnmax
+
+%--------------------------------------
+relwork buff
+
+check
+
+%--------------------------------------
+if (.not.exLoc) goto inundationEnd
+%--------------------------------------
+
+ncalc=size(ID)
+
+zmaxSea=dim(ncalc,MV)
+zmaxShore=dim(ncalc,MV)
+
+tzmaxShore=dim(ncalc,MV)
+hmaxShore=dim(ncalc,MV)
+
+tarrShore=dim(ncalc,MV)
+
+simInundation=dim(ncalc,MV)
+
+simRunup=dim(ncalc,MV)
+simDistRunup=dim(ncalc,MV)
+
+maxHeight = dim(ncalc,MV)
+typeMes = dim(ncalc,MV)
+
+popInundated = dim(ncalc,MV)
+areaInundated = dim(ncalc,MV)
+
+%---------------------------------------
+setexp map tarr.map
+tarr.map = existF(map)
+if (tarr.map) then
+getmap tarr tarr.map
+tarr=tarr_II
+endif
+
+setexp map tzwmax.map
+tzwmax.map = existF(map)
+if (tzwmax.map) then
+getmap tzwmax tzwmax.map
+tzwmax=tzwmax_II
+endif
+
+%---------------------------------------
+
+echo off
+echo ?on/off
+
+i=0; j=0
+do lab1 ncalc
+i=i+1
+id=ID_i
+
+if (.not.(m0_i)) goto end
+m=.not.eqmv(lookArea).and.id.eq.lookArea
+if (sum(m).eq.0) goto end
+
+j=j+1
+
+ID_j = ID_i
+lat_j = lat_i
+long_j = long_i
+
+%---------------------------------------
+% areaSea
+
+m=.not.(eqmv(areaSea).or.eqmv(zwmax)).and.id.eq.areaSea
+if (sum(m).eq.0) goto end3
+ll=getm(m,I) 
+
+zmaxSea_j=max(zwmax_ll)
+
+$$$$ end3
+
+
+%---------------------------------------
+% areaRunup
+
+maxHeight_j = maxHeight0_i
+typeMes_j = typeMes0_i
+
+m=.not.(eqmv(areaRunup).or.eqmv(zwmax).or.eqmv(distWet)).and.id.eq.areaRunup 
+
+if (sum(m).eq.0) goto end2
+
+ll=getm(m,I)
+
+% -------------- simInundation
+
+simInundation_j=max(zwmax_ll)
+
+% ------------- popInundated
+
+m1=.not.(eqmv(areaRunup).or.eqmv(popWet)).and.id.eq.areaRunup 
+
+if (sum(m1).eq.0) goto end4
+ll1=getm(m1,I)
+
+popInundated_j = cellarea*sum(popWet_ll1)
+if (popInundated_j.lt.10) then
+popInundated_j=MV
+else
+ndig=max(int(log10(popInundated_j))-1,1)
+popInundated_j=int(popInundated_j/(10^ndig))*(10^ndig)
+endif
+
+$$$$ end4
+
+% ------------- areaInundated
+
+m1=.not.(eqmv(areaRunup).or.eqmv(wetfrac)).and.id.eq.areaRunup 
+
+if (sum(m1).eq.0) goto end5
+ll1=getm(m1,I)
+
+areaInundated_j = cellarea*sum(wetfrac_ll1)
+if (areaInundated_j.lt.0.01 .or.eqmv(popInundated_j)) then
+popInundated_j=MV
+areaInundated_j=MV
+goto end5
+endif
+
+ndig=max(int(log10(areaInundated_j))-1,-2)
+if (ndig.ge.0) then
+areaInundated_j=int(areaInundated_j/(10^ndig))*(10^ndig)
+else
+ndig=-ndig
+areaInundated_j=int(areaInundated_j*(10^ndig))/(10^ndig)
+endif
+
+$$$$ end5
+
+%-------------- simDistRunup, simRunup 
+
+simDistRunup_j = max(distWet_ll)
+
+m=simDistRunup_j.eq.distWet_ll
+
+if (sum(m).eq.0) goto end2
+lzmax=getm(m,ll)
+simRunup_j = zwmax_(lzmax_1)
+
+
+if (simDistRunup_j.lt.runuplim) then
+simDistRunup_j=MV
+simRunup_j=MV
+
+else
+ndig=max(int(log10(simDistRunup_j))-1,1)
+simDistRunup_j=int(simDistRunup_j/(10^ndig))*(10^ndig)
+endif
+
+%------------------------------
+
+$$$$ end2
+
+%------------------------------
+
+% areaShore
+
+m=.not.(eqmv(areaShore).or.eqmv(zwmax)).and.id.eq.areaShore 
+
+if (sum(m).eq.0) goto end
+ll=getm(m,I)
+
+mzwmax=max(zwmax_ll)
+zmaxShore_j=mzwmax
+
+if (tarr.map) tarrShore_j=min(tarr_ll)
+if (tzwmax.map) tzmaxShore_j=min(getm(mzwmax.eq.zwmax_ll,tzwmax_ll))
+
+
+$$$$ end
+
+check
+
+end lab1
+
+%-----------------------------------------------------------------------
+echo on
+
+ncalc=j
+
+l=do(ncalc)
+
+
+ID = ID(1:j)
+lat = lat(1:j)
+long = long(1:j)
+
+zmaxSea=zmaxSea(1:j)
+zmaxShore=zmaxShore(1:j)
+
+tzmaxShore=tzmaxShore(1:j)
+hmaxShore=hmaxShore(1:j)
+
+tarrShore=tarrShore(1:j)
+
+simInundation=simInundation(1:j)
+
+simRunup=simRunup(1:j)
+simDistRunup=simDistRunup(1:j)
+
+maxHeight = maxHeight(1:j)
+typeMes = typeMes(1:j)
+
+popInundated = popInundated(1:j)
+areaInundated = areaInundated(1:j)
+
+
+%-----------------------------------------------------------------------
+mesInundation=dim(ncalc,MV)
+mesRunup=dim(ncalc,MV)
+mesDistRunup=dim(ncalc,MV)
+
+%-----------------------------------------------------------------------
+m=eqmv(tarrShore)
+if (sum(m).gt.0) then
+j=getm(m,l)
+tarrShore_j = tzmaxShore_j
+endif
+
+
+%-----------------------------------------------------------------------
+
+simMaxHeight=dim(ncalc)
+
+var=zmaxSea
+
+m=.not.eqmv(var)
+if (sum(m).gt.0) then
+j=getm(m,l)
+simMaxHeight_j=max(simMaxHeight_j,var_j)
+endif
+
+
+var=zmaxShore
+
+m=.not.eqmv(var)
+if (sum(m).gt.0) then
+j=getm(m,l)
+simMaxHeight_j=max(simMaxHeight_j,var_j)
+endif
+
+
+var=simInundation
+
+m=.not.eqmv(var)
+if (sum(m).gt.0) then
+j=getm(m,l)
+simMaxHeight_j=max(simMaxHeight_j,var_j)
+endif
+%-----------------------------------------------------------------------
+?
+
+setexp simlab ID  lat long zmaxSea zmaxShore simInundation simRunup simDistRunup tarrShore tzmaxShore  simMaxHeight popInundated areaInundated
+
+if (sum(.not.eqmv(maxHeight)).eq.0) then
+setexp meslab
+else
+setexp meslab maxHeight 
+endif
+
+write inundation.txt tab $simlab  $meslab \$namePlace
+
+
+$$$$ inundationEnd
+
+relwork lookArea  wetfrac
+relwork areaShore zwmax
+relwork areaRunup
+relwork areaSea
+relwork distWet
+
+
+check
+
+
+
+%--------------------------------------
+% image setup
+%--------------------------------------
+
+
+%siz=15e6
+%prod=8
+
+siz=4e6
+prod=4
+
+
+xshift=120
+
+pixsize0=1040/NCOLS
+pixsize=min(max(int(pixsize0),1),2)
+
+scale0=sqrt(siz/((NCOLS+xshift/pixsize)*NROWS))/pixsize
+scale=min(max(int(scale0),1),prod/pixsize)
+
+bulletsize=1
+
+print pixsize0 scale0 pixsize scale
+
+scale=?scale
+pixsize=?pixsize
+
+output imageData.txt
+print pixsize0 scale0 pixsize scale
+print NCOLS NROWS xshift/pixsize (NCOLS+xshift/pixsize)*NROWS/1e6
+print (scale*pixsize)^2*(NCOLS+xshift/pixsize)*NROWS/1e6
+close imageData.txt
+
+
+%--------------------------------------------
+% input for kml image
+
+north=YSTART
+south=YSTART-CELLSIZE*NROWS
+west0=XSTART
+west=west0
+westl=XSTART-CELLSIZE*(xshift/pixsize)
+east=XSTART+CELLSIZE*NCOLS
+
+output imageData.sh
+line export scale=#scale
+line export pixsize=#pixsize
+line export cellsize=@(CELLSIZE*3600) # sec
+line export xshift=#xshift
+line export north=#north
+line export south=#south
+line export westl=#westl
+line export west=#west
+line export east=#east
+close imageData.sh
+
+%--------------------------------------------
+% kml file
+%--------------------------------------------
+
+echo off
+echo ?on/off
+outkml=1
+
+!if [ -e $folder..kml ] \; then rm  $folder..kml \; fi
+
+output $folder..kml
+
+exec startkml
+
+line <Folder>
+line         <name>Raster maps</name>
+
+
+if (maxcc) close all
+
+
+setexp palette -palette gyor -palout WM
+
+do setdolegend
+if (nested) then
+setexp dolegend -mapshift 0 0 -doLegend no no 
+%setexp resize -resize yes
+setexp resize -resize no
+west=west0
+else
+setexp dolegend  -mapshift @xshift 0 -doLegend yes yes
+setexp resize -resize no
+west=westl
+endif
+end setdolegend
+
+setexp legendZmax  -Slegend 0.2 3.2 5 -leglog yes -Smin 0.2 -nstepcol 1 $dolegend
+setexp legendVel  -Slegend 0.1 1.6 5 -leglog yes -Smin 0.1 -nstepcol 1 $dolegend
+
+setexp paletteFrac -palette cbB  -palout WB 
+setexp legendFrac  -Slegend 0.1 1 10  -Smin 0.2 -nstepcol 3 $dolegend
+
+setexp palettePop -palette WmM  -palout WM 
+setexp legendPop  -Slegend 1 10000 5  -Smin 1 -nstepcol 3 -leglog yes $dolegend 
+
+smin=min(30,dx*0.5)
+setexp legendWet  -Slegend 30 480 5 -leglog yes -Smin #smin -nstepcol 1 $dolegend
+
+setexp legendLand  -Slegend 0.3 4.8 5 -leglog yes -Smin 0.3 -nstepcol 1 $dolegend
+
+setexp legendVelLand  -Slegend 0.05 4.05 5 -leglog yes -Smin 0.05 -nstepcol 1 $dolegend
+setexp legendZ   -Slegend -$hmax $hmax 11 -leglog no -Smin 0.01 -palette bcWyr -palout BM $dolegend
+
+setexp legendDem -Slegend -@minDem @(minDem/2) 7 -palette BbcWGO -palout BW -nstepcol 2  -leglog no $dolegend 
+
+
+if (maxcc) goto endcalc
+
+%-------------------------------------------
+
+% enter 1 if you want eps file
+ext1=0
+ext1=?ext1
+
+proc doGif
+if (maxcc) close all
+setexp filekml $map..gif 
+setexp out -o $filekml $resize
+if (.not.ext1) eof
+setexp out $out -outps $map..eps
+end doGif
+
+proc doPng
+if (maxcc) close all
+setexp filekml $map..png 
+setexp out -o $filekml  $resize
+if (.not.ext1) eof
+setexp out $out -outps $map..eps
+end doPng
+
+proc doJpeg
+if (maxcc) close all
+setexp filekml $map..jpeg  $resize
+setexp out -o $filekml
+if (.not.ext1) eof
+setexp out $out -outps $map..jpeg
+end doJpeg
+
+setexp doOut doPng
+setexp doOut ?doOut
+
+echo on
+echo ?on/off
+
+%-------------------------------------------
+visibility=1
+%-------------------------------------------
+
+setexp map inundationFrac.tif
+exec doPng
+
+!map2image  -i  $map   $out -pixsize #pixsize  -scale #scale $paletteFrac $legendFrac $outexec 
+
+exec dokml
+
+%-------------------------------------------
+
+setexp map inundationPop.tif
+exec doPng
+
+!map2image  -i  $map   $out -pixsize #pixsize  -scale #scale $palettePop $legendPop $outexec 
+
+exec dokml
+
+%-------------------------------------------
+
+% enter goto endkml if you want only the previous figure
+?
+
+%-------------------------------------------
+setexp map shoreline.map
+exec doPng
+
+!map2image  -i $map $out -pixsize #pixsize -scale #scale $dolegend $outexec 
+
+%west=west0
+exec dokml
+
+%exec setdolegend
+
+%-------------------------------------------
+visibility=0
+%-------------------------------------------
+
+setexp map inundationDist.tif
+exec doPng
+
+!map2image  -i  $map  $out -pixsize #pixsize  -scale #scale $palette $legendWet    $outexec 
+
+exec dokml
+
+
+
+%-------------------------------------------
+
+setexp map inundationHeight.tif
+exec doPng
+
+!map2image  -i $map $out -pixsize #pixsize  -scale #scale   $palette   $legendLand     $outexec
+
+exec dokml
+
+%-------------------------------------------
+if (.not.tsunami) goto next
+
+setexp map ../deformation.tif
+if (existF(map)) then
+!cp $map .
+setexp map deformation.tif
+else
+setexp map fault.map
+endif
+if (.not.existF(map)) goto next
+
+exec doPng
+
+!map2image  -i  $map   $out -pixsize #pixsize  -scale #scale  $legendZ -Smin 0.1 $outexec
+
+exec dokml
+
+$$$$ next
+
+%-------------------------------------------
+if (tsunami) goto next
+
+setexp map u10max.map
+if (.not.existF(map)) goto next
+
+exec doPng
+
+setexp legend  -Slegend 18 42 5 -leglog yes -Smin 18 -nstepcol 1  $dolegend
+
+!map2image  -i  $map $out -pixsize #pixsize  -scale #scale  $palette $legend   $outexec
+
+exec dokml
+
+$$$$ next
+
+%-------------------------------------------
+if (tsunami) goto next
+
+
+setexp map deprmax.map
+if (.not.existF(map)) goto next
+
+exec doPng
+% 5.0000   G    10.000   Y    20.000   O    40.000    R   80.000   M
+setexp legend  -Slegend 5 80 5 -leglog yes -Smin 5 -nstepcol 1   $dolegend
+
+!map2image  -i  $map    $out -pixsize #pixsize  -scale #scale  $palette $legend   $outexec
+
+exec dokml
+
+$$$$ next
+
+%-------------------------------------------
+
+% enter goto endkml if you want only the previous figure
+?
+%-------------------------------------------
+visibility=0
+
+setexp map inundationDepth.tif
+exec $doOut
+
+!map2image  -i $map   $out -pixsize #pixsize  -scale #scale  $palette   $legendLand  $outexec
+exec dokml
+
+
+%-------------------------------------------
+setexp map inundationVel.tif
+exec $doOut
+
+!map2image  -i $map    $out -pixsize #pixsize  -scale #scale   $palette   $legendVelLand  $outexec
+
+exec dokml
+
+%-------------------------------------------
+setexp map zwmax.map
+exec $doOut
+
+!map2image  -i $map    $out -pixsize #pixsize -scale #scale  $palette   $legendZmax  $outexec
+exec dokml
+
+
+%-------------------------------------------
+setexp map vnmax.map
+exec $doOut
+
+!map2image  -i $map   $out -pixsize #pixsize  -scale #scale   $palette   $legendVel  $outexec
+
+exec dokml
+
+%-------------------------------------------
+setexp map demSea.map
+exec $doOut
+
+!map2image  -i $map shoreline.map $out -pixsize #pixsize  -scale #scale  $legendDem  $outexec
+
+exec dokml
+%-------------------------------------------
+
+setexp map popmap.map
+exec doPng
+
+!map2image  -i  $map   $out -pixsize #pixsize  -scale #scale $palettePop $legendPop $outexec 
+
+exec dokml
+
+%--------------------------------------
+$$$$ endkml
+
+echo off
+
+line </Folder>  % close image folder
+
+
+if (.not.exLoc) goto endcalc
+
+%--------------------------------------
+% enter goto endcalc if you do NOT want locations
+?
+
+
+%----------------------------------
+showvar=1
+exec watchMes
+
+%----------------------------------
+$$$$ endcalc
+
+if (outkml) then
+exec endkml
+close $folder..kml
+endif
+
+echo on
+
+%!rm dist.map    idist.map      maskSV.map     shoreInd.map    idistWet.map    maskBool.map  
+
+
+setexp zipfiles $folder..kml *.png watch.txt summary.txt watch/*  
+
+!zip $folder..kmz $zipfiles  $outexec
+
+
+cd $start
+
+print maxcc radiusLand*fact
+
+

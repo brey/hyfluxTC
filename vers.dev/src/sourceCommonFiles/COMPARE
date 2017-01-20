@@ -1,0 +1,665 @@
+1
+1
+   netcdf_int.cpp.old                                                                                  main0001  
+ +          *....*...1.........2.........3.........4.........5.........6.........7.*                            -
+   main0001                                    netcdf_int.cpp                                                    
+ -                            *....*...1.........2.........3.........4.........5.........6.........7.*          +
+
+ =      1   #include "netcdf_int.h"                                                                           1 =
+ =      2   #include "stringlib.h"                                                                            2 =
+ =      3                                                                                                     3 =
+ =      4   void logErr(int res, char * testo)                                                                4 =
+ =      5   {                                                                                                 5 =
+ =      6   	if (res !=0)                                                                                     6 =
+ =      7   	{                                                                                                7 =
+ =      8   		printf("** %s: %i",testo,res);                                                                  8 =
+ =      9   		return;                                                                                         9 =
+ =     10   	}                                                                                               10 =
+ =     11                                                                                                    11 =
+ =     12   }                                                                                                12 =
+ =     13   void NetCDF_Write(char * name, char * basefname, int openMode,double  Ti                         13 =
+ =     14   {                                                                                                14 =
+ =     15   	int res, DIMID_LON[1], VARID_LON=-1;                                                            15 =
+ =     16   	int DIMID_LAT[1], VARID_LAT=-1;                                                                 16 =
+ =     17   	int DIMID_TIME[1], VARID_TIME=-1, VARID_HA=-1;                                                  17 =
+ =     18   	int dimlen;                                                                                     18 =
+ =     19   	double *vardouble;                                                                              19 =
+ =     20   	char * namevar, *nameAttr, *attrVal;	                                                           20 =
+
+ +     21   	int  dimids [3],ndims[3], natts[3];                                                                -
+
+ -                            	char * lonName =(char*) calloc(256,sizeof(char));                             21 +
+ -                            	char * latName =(char*) calloc(256,sizeof(char));                             22 +
+ -                            	char * timeName =(char*) calloc(256,sizeof(char));                            23 +
+ -                                                                                                           24 +
+ -                            	int *dimids,*ndims,*natts;                                                    25 +
+ -                            	//int  dimids [3],ndims[3], natts[3];                                         26 +
+ -                            	//int  dimids2 [2],ndims2[2], natts2[2];                                      27 +
+
+ =     22   	char * nameV=(char*) calloc(256,sizeof(char));                                                  28 =
+ =     23   	char * worldFileName = (char*) calloc(256,sizeof(char));                                        29 =
+ =     24   	size_t * dimlen1=(size_t *) calloc(256, sizeof(size_t));                                        30 =
+ =     25   	nc_type * xtype=(nc_type *) calloc(256,sizeof(nc_type));                                        31 =
+ =     26   	namevar=(char*) calloc(256,sizeof(char));                                                       32 =
+ =     27   	attrVal=(char*) calloc(256,sizeof(char));                                                       33 =
+ =     28   	nameAttr=(char*) calloc(256,sizeof(char));                                                      34 =
+ =     29   	                                                                                                35 =
+ =     30   	if (compString(basefname,"TIF_H_"))                                                             36 =
+ =     31   	{                                                                                               37 =
+ =     32   		copystring("HA",namevar);                                                                      38 =
+ =     33   		copystring("units",nameAttr);                                                                  39 =
+ =     34   		copystring("m",attrVal);                                                                       40 =
+
+ -                            		copystring("LON",lonName);                                                   41 +
+ -                            		copystring("LAT",latName);                                                   42 +
+ -                            		copystring("TIME",timeName);                                                 43 +
+
+ =     35   	}                                                                                               44 =
+
+ +     36   	if (compString(basefname,"TIF_V_"))                                                                -
+
+ -                            	if (compString(basefname,"NOAA_Bat"))                                         45 +
+
+ =     37   	{                                                                                               46 =
+
+ +     38   		copystring("V",namevar);                                                                          -
+
+ -                            		copystring("bathy",namevar);                                                 47 +
+
+ =     39   		copystring("units",nameAttr);                                                                  48 =
+
+ +     40   		copystring("m/s",attrVal);                                                                        -
+
+ -                            		copystring("m",attrVal);                                                     49 +
+ -                            		copystring("lon",lonName);                                                   50 +
+ -                            		copystring("lat",latName);                                                   51 +
+ -                            //		copystring("time",timeName);                                               52 +
+ -                                                                                                           53 +
+
+ =     41   	}                                                                                               54 =
+
+ +     42   	if (compString(basefname,"TIF_U_"))                                                                -
+
+ -                            	if (compString(basefname,"NOAA_HA"))                                          55 +
+
+ =     43   	{                                                                                               56 =
+
+ +     44   		copystring("U",namevar);                                                                          -
+
+ -                            		copystring("ha",namevar);                                                    57 +
+
+ =     45   		copystring("units",nameAttr);                                                                  58 =
+
+ +     46   		copystring("m/s",attrVal);                                                                        -
+
+ -                            		copystring("centimeters",attrVal);                                           59 +
+ -                            		copystring("lon",lonName);                                                   60 +
+ -                            		copystring("lat",latName);                                                   61 +
+ -                            		copystring("time",timeName);                                                 62 +
+ -                                                                                                           63 +
+
+ =     47   	}                                                                                               64 =
+
+ +     48   	if (compString(basefname,"bathymetry"))                                                            -
+
+ -                                                                                                           65 +
+ -                            	if (compString(basefname,"TIF_V_"))                                           66 +
+
+ =     49   	{                                                                                               67 =
+
+ +     50   		copystring("DE",namevar);                                                                         -
+
+ -                            		copystring("V",namevar);                                                     68 +
+
+ =     51   		copystring("units",nameAttr);                                                                  69 =
+
+ +     52   		copystring("m",attrVal);                                                                          -
+
+ -                            		copystring("m/s",attrVal);                                                   70 +
+ -                            		copystring("LON",lonName);                                                   71 +
+ -                            		copystring("LAT",latName);                                                   72 +
+ -                            		copystring("TIME",timeName);                                                 73 +
+ -                                                                                                           74 +
+
+ =     53   	}                                                                                               75 =
+
+ -                            	if (compString(basefname,"TIF_U_"))                                           76 +
+ -                            	{                                                                             77 +
+ -                            		copystring("U",namevar);                                                     78 +
+ -                            		copystring("units",nameAttr);                                                79 +
+ -                            		copystring("m/s",attrVal);                                                   80 +
+ -                            		copystring("LON",lonName);                                                   81 +
+ -                            		copystring("LAT",latName);                                                   82 +
+ -                            		copystring("TIME",timeName);                                                 83 +
+ -                            	}                                                                             84 +
+ -                            	if (compString(basefname,"bathymetry"))                                       85 +
+ -                            	{                                                                             86 +
+ -                            		copystring("DE",namevar);                                                    87 +
+ -                            		copystring("units",nameAttr);                                                88 +
+ -                            		copystring("m",attrVal);                                                     89 +
+ -                            		copystring("LON",lonName);                                                   90 +
+ -                            		copystring("LAT",latName);                                                   91 +
+ -                            		copystring("TIME",timeName);                                                 92 +
+ -                            	}                                                                             93 +
+
+ =     54                                                                                                    94 =
+ =     55   	int ncid;                                                                                       95 =
+ =     56           if (openMode == NC_WRITE)                                                                96 =
+ =     57   		{                                                                                              97 =
+ =     58                                                                                                    98 =
+
+ +     59               res = nc_create(name, NC_CLOBBER, &ncid);                                               -
+
+ -                                        res = nc_create(name, NC_CLOBBER | NC_64BIT_OFFSET, &ncid);        99 +
+
+ =     60   			logErr(res,"error in netcdf creating file");                                                 100 =
+ =     61                                                                                                   101 =
+ =     62               //Write some attributes.                                                            102 =
+ =     63   			                                                                                             103 =
+ =     64   			writeAttrib(ncid, "hystory", "SWAN 1.0 - JRC Ispra European Commissio                        104 =
+ =     65                                                                                                   105 =
+
+ +     66              CreateVar(ncid, "LON", NC_DOUBLE, lon_v,ncols, DIMID_LON, &VA                            -
+
+ -                                       CreateVar(ncid,lonName, NC_DOUBLE, lon_v,ncols, DIMID_LON, &V      106 +
+
+ =     67   			writeAttrib(ncid, "units", "degrees_east", VARID_LON);                                       107 =
+ =     68   			writeAttrib(ncid, "point_spacing","even", VARID_LON);                                        108 =
+ =     69                                                                                                   109 =
+
+ +     70               CreateVar(ncid, "LAT", NC_DOUBLE, lat_v, nrows, DIMID_LAT, &                            -
+
+ -                                        CreateVar(ncid, latName, NC_DOUBLE, lat_v, nrows, DIMID_LAT,      110 +
+
+ =     71   			writeAttrib(ncid, "units", "degrees_north", VARID_LAT);                                      111 =
+ =     72   			writeAttrib(ncid, "point_spacing","even", VARID_LAT);                                        112 =
+ =     73                                                                                                   113 =
+
+ +     74   			CreateVar(ncid, "TIME", NC_DOUBLE, lat_v,-1, DIMID_TIME, &VARID_TIME,                            -
+ +     75   			writeAttrib(ncid, "units", "seconds", VARID_TIME);                                               -
+
+ =     76   			                                                                                             114 =
+
+ +     77                                                                                                       -
+ +     78                                                                                                       -
+ +     79   			int  dimids [3]={DIMID_TIME[0], DIMID_LAT[0], DIMID_LON[0]};                                     -
+ +     80                                                                                                       -
+ +     81               //CreateVar(ncid, namevar, NC_INT,  NULL,NULL,NULL, &VARID_H                            -
+ +     82   			CreateVar(ncid, namevar, NC_FLOAT,  NULL,NULL,NULL, &VARID_HA, false                             -
+ +     83   			writeAttrib(ncid, nameAttr, attrVal, VARID_HA);                                                  -
+ +     84                                                                                                       -
+
+ -                            			if ( !compString(basefname,"NOAA_Bat"))                                    115 +
+ -                            			{	dimids=(int*) calloc(3,sizeof(int));                                     116 +
+ -                            				natts=(int*) calloc(3,sizeof(int));                                       117 +
+ -                            				ndims=(int*) calloc(3,sizeof(int));                                       118 +
+ -                            				CreateVar(ncid, timeName, NC_DOUBLE, lat_v,-1, DIMID_TIME, &VARID_TI      119 +
+ -                            				writeAttrib(ncid, "units", "seconds", VARID_TIME);                        120 +
+ -                            				int dimids[3]={DIMID_TIME[0], DIMID_LAT[0], DIMID_LON[0]};                121 +
+ -                            				CreateVar(ncid, namevar, NC_FLOAT,  NULL,NULL,NULL, &VARID_HA, false      122 +
+ -                            				writeAttrib(ncid, nameAttr, attrVal, VARID_HA);                           123 +
+ -                            			}                                                                          124 +
+ -                            			else                                                                       125 +
+ -                            			{                                                                          126 +
+ -                            				dimids=(int*) calloc(2,sizeof(int));                                      127 +
+ -                            				natts=(int*) calloc(2,sizeof(int));                                       128 +
+ -                            				ndims=(int*) calloc(2,sizeof(int));                                       129 +
+ -                            				                                                                          130 +
+ -                            				dimids[0]=DIMID_LAT[0];                                                   131 +
+ -                            				dimids[1]=DIMID_LON[0];                                                   132 +
+ -                            				CreateVar(ncid, namevar, NC_FLOAT,  NULL,NULL,NULL, &VARID_HA, false      133 +
+ -                            				writeAttrib(ncid, nameAttr, attrVal, VARID_HA);                           134 +
+ -                            			}                                                                          135 +
+
+ =     85               res = nc_enddef(ncid) ;                                                             136 =
+ =     86   			logErr(res,"error defining vars");                                                           137 =
+ =     87   			                                                                                             138 =
+ =     88               res = nc_put_var_double(ncid, VARID_LON, lon_v) ; logErr(res                        139 =
+ =     89               res = nc_put_var_double(ncid, VARID_LAT, lat_v) ; logErr(res                        140 =
+ =     90   			vardouble=(double*) calloc(1,sizeof(double));                                                141 =
+ =     91   			vardouble[0]=TimeVal;                                                                        142 =
+ =     92               dimlen = 0;                                                                         143 =
+ =     93   			                                                                                             144 =
+ =     94   			// create world file                                                                         145 =
+ =     95   			FILE *outfile;                                                                               146 =
+ =     96   			float dxCell=lon_v[2]-lon_v[1];                                                              147 =
+ =     97   			float dyCell=lat_v[1]-lat_v[2];                                                              148 =
+ =     98   			outfile=fopen(replace_str(name,".nc",".nxc"),"w");                                           149 =
+ =     99   			fprintf(outfile,"%f\n",dxCell);                                                              150 =
+ =    100   			fprintf(outfile,"0.\n0.\n");                                                                 151 =
+ =    101   			fprintf(outfile,"%f\n",dyCell);                                                              152 =
+ =    102   			fprintf(outfile,"%f\n",lon_v[0]-dxCell/2+1.e-6);                                             153 =
+ =    103   			fprintf(outfile,"%f\n",lat_v[nrows-1]-dyCell/2);                                             154 =
+ =    104   			fclose(outfile);                                                                             155 =
+ =    105   		}                                                                                             156 =
+ =    106   		else                                                                                          157 =
+ =    107   		{                                                                                             158 =
+
+ +    108             res = nc_open(name, NC_WRITE, &ncid);                                                     -
+
+ -                                      res = nc_open(name, NC_WRITE | NC_64BIT_OFFSET, &ncid);             159 +
+
+ =    109   		  logErr(res,"opening file");                                                                 160 =
+ =    110               // need to determine time value index                                               161 =
+
+ -                            		    if ( !compString(basefname,"NOAA_Bat"))                                 162 +
+ -                                        res = nc_inq_varid(ncid, timeName, &VARID_TIME) ;                 163 +
+ -                            			logErr(res,"error imquiring time");                                        164 +
+
+ =    111                                                                                                   165 =
+
+ +    112               res = nc_inq_varid(ncid, "TIME", &VARID_TIME) ;                                         -
+ +    113   			logErr(res,"error imquiring time");                                                              -
+ +    114                                                                                                       -
+
+ =    115   			res = nc_inq_varid(ncid, namevar, &VARID_HA);logErr(res,"Error INQUIR                        166 =
+ =    116   			                                                                                             167 =
+ =    117               res = nc_inq_var(ncid, VARID_TIME, nameV, xtype, ndims, dimi                        168 =
+ =    118               res = nc_inq_dimlen(ncid, dimids[0], dimlen1);                                      169 =
+ =    119               dimlen= (int) dimlen1[0];                                                           170 =
+ =    120   			double *vardoubleOld=(double *) calloc(dimlen,sizeof(double));                               171 =
+ =    121   			                                                                                             172 =
+ =    122               res = nc_get_var_double(ncid, VARID_TIME, vardoubleOld);                            173 =
+ =    123                                                                                                   174 =
+ =    124   			vardouble=(double *) calloc(dimlen+1,sizeof(double));                                        175 =
+ =    125   			int i;                                                                                       176 =
+ =    126   			for (i=0;i<dimlen;i++)                                                                       177 =
+ =    127   				vardouble[i]=vardoubleOld[i];                                                               178 =
+ =    128                                                                                                   179 =
+ =    129   			vardouble[dimlen] = TimeVal;                                                                 180 =
+ =    130   			delete [] vardoubleOld;                                                                      181 =
+ =    131   			vardoubleOld=NULL;                                                                           182 =
+ =    132   		}                                                                                             183 =
+ =    133   		                                                                                              184 =
+
+ +    134   		static size_t  startp [3],countp[3];                                                              -
+
+ -                            		                                                                            185 +
+
+ =    135   		//int * ha_v1;                                                                                186 =
+ =    136   		float * ha_v1;                                                                                187 =
+ =    137   		//ha_v1=(int *) calloc(ncols*nrows,sizeof(float));                                            188 =
+ =    138   		ha_v1=(float *) calloc(ncols*nrows,sizeof(float));                                            189 =
+ =    139   		//Dim ha_v1((UBound(lon_v) + 1) * (UBound(lat_v) + 1) - 1) As Single                          190 =
+ =    140           int i,k,n,j;                                                                            191 =
+ =    141   		n = -1;                                                                                       192 =
+ =    142           for (j = 0;j<nrows;j++)                                                                 193 =
+ =    143   		{                                                                                             194 =
+ =    144               for (i = 0;i<ncols;i++)                                                             195 =
+ =    145   			{                                                                                            196 =
+ =    146                   n += 1;                                                                         197 =
+ =    147                   ha_v1[n] = ha_v[j+2][i+2]*factor;                                               198 =
+ =    148   				//printf("%i  %i  %f\n",i+2,j+2,ha_v1[n]);                                                  199 =
+ =    149   			}                                                                                            200 =
+ =    150   		}                                                                                             201 =
+ =    151                                                                                                   202 =
+
+ +    152           startp[0] = dimlen;                                                                         -
+ +    153           startp[1] = 0;                                                                              -
+ +    154           startp[2] = 0;                                                                              -
+ +    155           countp[0] = 1;                                                                              -
+ +    156           countp[1] = nrows ;                                                                         -
+ +    157           countp[2] = ncols ;                                                                         -
+
+ -                            		static size_t  * startp ,*countp;                                           203 +
+ -                            		if ( !compString(basefname,"NOAA_Bat"))                                     204 +
+ -                            		{                                                                           205 +
+ -                            			startp= (size_t *) calloc(3,sizeof(size_t));                               206 +
+ -                            			countp= (size_t *) calloc(3,sizeof(size_t));                               207 +
+ -                            			startp[0] = dimlen;                                                        208 +
+ -                            			startp[1] = 0;                                                             209 +
+ -                            			startp[2] = 0;                                                             210 +
+ -                            			countp[0] = 1;                                                             211 +
+ -                            			countp[1] = nrows;                                                         212 +
+ -                            			countp[2] = ncols;                                                         213 +
+ -                            		}                                                                           214 +
+ -                            		else                                                                        215 +
+ -                            		{                                                                           216 +
+ -                            			startp= (size_t *) calloc(2,sizeof(size_t));                               217 +
+ -                            			countp= (size_t *) calloc(2,sizeof(size_t));                               218 +
+ -                            			startp[0] = 0;                                                             219 +
+ -                            			startp[1] = 0;                                                             220 +
+ -                            			countp[0] = nrows;                                                         221 +
+ -                            			countp[1] = ncols;                                                         222 +
+ -                            		}                                                                           223 +
+
+ =    158           res = nc_put_vara_float(ncid, VARID_HA, startp, countp, ha_v1);l                        224 =
+ =    159   		//res = nc_put_vara_int(ncid, VARID_HA, startp, countp, ha_v1);logErr(                        225 =
+
+ +    160           res = nc_put_var_double(ncid, VARID_TIME, vardouble);logErr(res,                            -
+
+ -                                   if ( !compString(basefname,"NOAA_Bat"))                                226 +
+ -                            	   {                                                                         227 +
+ -                            		res = nc_put_var_double(ncid, VARID_TIME, vardouble);logErr(res,"netcd      228 +
+ -                            	   }                                                                         229 +
+
+ =    161   		delete [] ha_v1,vardouble;                                                                    230 =
+ =    162   		ha_v1=NULL;vardouble=NULL;                                                                    231 =
+ =    163   		res = nc_close(ncid);                                                                         232 =
+ =    164   }                                                                                               233 =
+ =    165                                                                                                   234 =
+ =    166   int readVarDouble(int ncid, int VARID, double *q, int * nval, char * nam                        235 =
+ =    167   {                                                                                               236 =
+ =    168   	// Mode=0  only read dimensions                                                                237 =
+ =    169   	// Mode=1  read                                                                                238 =
+ =    170   		int  dimids [3],ndims[3], natts[3];                                                           239 =
+ =    171   		size_t * dimlen=(size_t *) calloc(256, sizeof(size_t));                                       240 =
+ =    172   		nc_type * xtype=(nc_type *) calloc(256,sizeof(nc_type));                                      241 =
+ =    173                                                                                                   242 =
+ =    174   		int res;                                                                                      243 =
+ =    175   		res = nc_inq_var(ncid, VARID, nameV, xtype, ndims, dimids, natts);                            244 =
+ =    176   		res = nc_inq_dimlen(ncid, dimids[0], dimlen);                                                 245 =
+ =    177   		if (Mode==1)                                                                                  246 =
+ =    178   		{                                                                                             247 =
+ =    179   			res = nc_get_var_double(ncid, VARID, q);                                                     248 =
+ =    180   		}                                                                                             249 =
+ =    181   		*nval = (int) dimlen[0];                                                                      250 =
+ =    182   		return 0;                                                                                     251 =
+ =    183                                                                                                   252 =
+ =    184   }                                                                                               253 =
+ =    185   /*                                                                                              254 =
+ =    186   int readVarFloat(int ncid, int VARID, float *q, int * nval, char * nameV                        255 =
+ =    187   {                                                                                               256 =
+ =    188   		int  dimids [3],ndims[3], natts[3];                                                           257 =
+ =    189   		size_t * dimlen=(size_t *) calloc(256, sizeof(size_t));                                       258 =
+ =    190   		nc_type * xtype=(nc_type *) calloc(256,sizeof(nc_type));                                      259 =
+ =    191   		int res;                                                                                      260 =
+ =    192   		res = nc_inq_var(ncid, VARID, nameV, xtype, ndims, dimids, natts);                            261 =
+ =    193   		res = nc_inq_dimlen(ncid, dimids[0], dimlen);                                                 262 =
+ =    194   		q=(float *) calloc((int) dimlen, sizeof(float));                                              263 =
+ =    195   		res = nc_get_var_float(ncid, VARID, q);                                                       264 =
+ =    196   		*nval = (int) dimlen[0];                                                                      265 =
+ =    197   		return 0;                                                                                     266 =
+ =    198                                                                                                   267 =
+ =    199   }                                                                                               268 =
+ =    200   */                                                                                              269 =
+
+ +    201   void NETCDF_ReadTime(char * fname, int Mode, double  * TimeVals, int * n                            -
+
+ -                            void NETCDF_ReadTime(char * fname,char * basefname, int Mode, double  *       270 +
+
+ =    202   {                                                                                               271 =
+ =    203   		int res, ncid;                                                                                272 =
+ =    204   		int VARID_TIME, VARID_LAT,VARID_LON,VARID_HA;                                                 273 =
+ =    205           res = nc_open(fname, NC_CLOBBER, &ncid);                                                274 =
+ =    206                                                                                                   275 =
+
+ +    207           res = nc_inq_varid(ncid, "TIME", &VARID_TIME);                                              -
+
+ -                            		if(compString(basefname,"NOAA_Bat") || compString(basefname,"NOAA_HA")      276 +
+ -                            			res = nc_inq_varid(ncid, "time", &VARID_TIME);                             277 +
+ -                            		else                                                                        278 +
+ -                            			res = nc_inq_varid(ncid, "TIME", &VARID_TIME);                             279 +
+
+ =    208                                                                                                   280 =
+ =    209           double *x1;                                                                             281 =
+ =    210       	char * nameV=(char*)calloc(256,sizeof(char));                                              282 =
+ =    211   		x1=(double*)calloc(1,sizeof(double));                                                         283 =
+ =    212   	    res = readVarDouble(ncid, VARID_TIME, x1, nval_time,nameV,0);                              284 =
+ =    213   		if (Mode==1)                                                                                  285 =
+ =    214   				res = readVarDouble(ncid, VARID_TIME, TimeVals, nval_time,nameV,1);                         286 =
+ =    215   		nc_close(ncid);                                                                               287 =
+ =    216   }                                                                                               288 =
+ =    217                                                                                                   289 =
+
+ +    218   void NETCDF_Read(char * fname,  int Mode, int IDTime, double * x1, int *                            -
+
+ -                            void NETCDF_Read(char * fname, char * basefname, int Mode, int IDTime, d      290 +
+
+ =    219   {                                                                                               291 =
+ =    220   		int res, ncid;                                                                                292 =
+ =    221   		int VARID_TIME, VARID_LAT,VARID_LON,VARID_HA;                                                 293 =
+ =    222           res = nc_open(fname, NC_CLOBBER, &ncid);                                                294 =
+ =    223   		if (res != 0)                                                                                 295 =
+ =    224   			printf("error opening netcdf file %s\n",fname);                                              296 =
+
+ +    225           res = nc_inq_varid(ncid, "TIME", &VARID_TIME);                                              -
+ +    226           res = nc_inq_varid(ncid, "LAT", &VARID_LAT) ;                                               -
+ +    227           res = nc_inq_varid(ncid, "LON", &VARID_LON) ;                                               -
+ +    228           res = nc_inq_varid(ncid, "HA", &VARID_HA) ;                                                 -
+ +    229           double *y1;                                                                                 -
+ +    230   		char * nameV=(char*)calloc(256,sizeof(char));                                                     -
+ +    231   		//x1=(double*)calloc(1,sizeof(double));                                                           -
+ +    232   		y1=(double*)calloc(1,sizeof(double));                                                             -
+ +    233           res = readVarDouble(ncid, VARID_TIME, x1, nval_time,nameV,0);                               -
+ +    234   		                                                                                                  -
+ +    235           int nval1, nval2;                                                                           -
+ +    236           res = readVarDouble(ncid, VARID_LAT, lat_v, nrows,nameV,0);                                 -
+ +    237           res = readVarDouble(ncid, VARID_LON, lon_v, ncols,nameV,0);                                 -
+ +    238   		if (Mode!=0)                                                                                      -
+ +    239   		{   int k;                                                                                        -
+ +    240   			static size_t  startp [3],countp[3];                                                             -
+ +    241   			//x1=(double *) calloc((int) &nval_time, sizeof(double));                                        -
+ +    242   			if (Mode==1)                                                                                     -
+
+ -                            		if(compString(basefname,"NOAA_Bat") || compString(basefname,"NOAA_HA")      297 +
+ -                            		{                                                                           298 +
+ -                            			                                                                           299 +
+ -                            			res = nc_inq_varid(ncid, "lat", &VARID_LAT) ;                              300 +
+ -                            			res = nc_inq_varid(ncid, "lon", &VARID_LON) ;                              301 +
+ -                            			if(compString(basefname,"NOAA_Bat"))                                       302 +
+ -                            				res = nc_inq_varid(ncid, "bathy", &VARID_HA) ;                            303 +
+ -                            			else                                                                       304 +
+
+ =    243   			{                                                                                            305 =
+
+ +    244   			res = readVarDouble(ncid, VARID_TIME, x1, nval_time,nameV,1);                                    -
+ +    245   			res = readVarDouble(ncid, VARID_LAT, lat_v, nrows,nameV,1);                                      -
+ +    246   			res = readVarDouble(ncid, VARID_LON, lon_v, ncols,nameV,1);                                      -
+
+ -                            				res = nc_inq_varid(ncid, "ha", &VARID_HA) ;                               306 +
+ -                            				res = nc_inq_varid(ncid, "time", &VARID_TIME);                            307 +
+
+ =    247   			}                                                                                            308 =
+
+ +    248   			if (IDTime>=0)                                                                                   -
+
+ -                            		}                                                                           309 +
+ -                            		else                                                                        310 +
+ -                            		{                                                                           311 +
+ -                            			res = nc_inq_varid(ncid, "TIME", &VARID_TIME);                             312 +
+ -                            			res = nc_inq_varid(ncid, "LAT", &VARID_LAT) ;                              313 +
+ -                            			res = nc_inq_varid(ncid, "LON", &VARID_LON) ;                              314 +
+ -                            			res = nc_inq_varid(ncid, "HA", &VARID_HA) ;                                315 +
+ -                            		}                                                                           316 +
+ -                            		double *y1;                                                                 317 +
+ -                            		char * nameV=(char*)calloc(256,sizeof(char));                               318 +
+ -                            		//x1=(double*)calloc(1,sizeof(double));                                     319 +
+ -                            		y1=(double*)calloc(1,sizeof(double));                                       320 +
+ -                            		if(!(compString(basefname,"NOAA_Bat") ))                                    321 +
+ -                                    res = readVarDouble(ncid, VARID_TIME, x1, nval_time,nameV,0);         322 +
+ -                            		                                                                            323 +
+ -                                    int nval1, nval2;                                                     324 +
+ -                                    res = readVarDouble(ncid, VARID_LAT, lat_v, nrows,nameV,0);           325 +
+ -                                    res = readVarDouble(ncid, VARID_LON, lon_v, ncols,nameV,0);           326 +
+ -                            		if (Mode!=0)                                                                327 +
+ -                            		{   int k;                                                                  328 +
+ -                            			static size_t  startp [3],countp[3];                                       329 +
+ -                            			//x1=(double *) calloc((int) &nval_time, sizeof(double));                  330 +
+ -                            			if (Mode==1)                                                               331 +
+
+ =    249   			{                                                                                            332 =
+
+ -                            			if(!(compString(basefname,"NOAA_Bat") || compString(basefname,"NOAA_H      333 +
+ -                            			res = readVarDouble(ncid, VARID_TIME, x1, nval_time,nameV,1);              334 +
+ -                            			res = readVarDouble(ncid, VARID_LAT, lat_v, nrows,nameV,1);                335 +
+ -                            			res = readVarDouble(ncid, VARID_LON, lon_v, ncols,nameV,1);                336 +
+ -                            			}                                                                          337 +
+ -                            			if (IDTime>=0)                                                             338 +
+ -                            			{                                                                          339 +
+
+ =    250   				float * ha_v1;                                                                              340 =
+ =    251   				ha_v1=(float *) calloc(*ncols * *nrows,sizeof(float));                                      341 =
+
+ +    252   				startp[0] = IDTime;                                                                             -
+
+ -                            				if (compString(basefname,"NOAA_Bat"))                                     342 +
+ -                            				{                                                                         343 +
+ -                            				startp[0] = 0;                                                            344 +
+
+ =    253   				startp[1] = 0;                                                                              345 =
+
+ -                            				countp[0] = *nrows ;                                                      346 +
+ -                            				countp[1] = *ncols ;                                                      347 +
+ -                            				                                                                          348 +
+ -                            				}                                                                         349 +
+ -                            				else                                                                      350 +
+ -                            				{                                                                         351 +
+ -                            				startp[0] = IDTime;                                                       352 +
+ -                            				startp[1] = 0;                                                            353 +
+
+ =    254   				startp[2] = 0;                                                                              354 =
+ =    255   				countp[0] = 1;                                                                              355 =
+ =    256   				countp[1] = *nrows ;                                                                        356 =
+ =    257   				countp[2] = *ncols ;                                                                        357 =
+
+ -                            				}                                                                         358 +
+
+ =    258   				res = nc_get_vara_float(ncid, VARID_HA, startp, countp, ha_v1) ;                            359 =
+ =    259   				int i,j,n=-1;                                                                               360 =
+ =    260   				for (j = 0;j<*nrows;j++)                                                                    361 =
+ =    261   				{                                                                                           362 =
+ =    262   					for (i = 0;i<*ncols;i++)                                                                   363 =
+ =    263   					{                                                                                          364 =
+ =    264   						n += 1;                                                                                   365 =
+ =    265   						ha_v[j+2][i+2]=ha_v1[n]*factor;                                                           366 =
+ =    266   						//printf("%i  %i  %f\n",i,j,ha_v1[n]);                                                    367 =
+ =    267   					}                                                                                          368 =
+ =    268   				}                                                                                           369 =
+ =    269   				delete [] ha_v1;                                                                            370 =
+ =    270   				ha_v1=NULL;                                                                                 371 =
+ =    271   			}                                                                                            372 =
+ =    272   			else                                                                                         373 =
+ =    273   				printf("Time not found");                                                                   374 =
+ =    274   		}                                                                                             375 =
+ =    275   		                                                                                              376 =
+ =    276   		nc_close(ncid);                                                                               377 =
+ =    277   		delete [] y1;y1=NULL;                                                                         378 =
+ =    278   }                                                                                               379 =
+ =    279   void CreateVar(int ncid,char * NameVar, int typeVar, double * quantity,                         380 =
+ =    280   {                                                                                               381 =
+ =    281   	int res;                                                                                       382 =
+ =    282           //*****************************                                                         383 =
+ =    283           //Define dimensions                                                                     384 =
+ =    284           //*****************************                                                         385 =
+ =    285           if (unlimited) {                                                                        386 =
+ =    286               res = nc_def_dim(ncid, NameVar, NC_UNLIMITED, &dimID[0]);                           387 =
+ =    287               res = nc_def_var(ncid, NameVar, (nc_type) typeVar, 1, dimID,                        388 =
+ =    288   		}                                                                                             389 =
+ =    289           else                                                                                    390 =
+ =    290   		{                                                                                             391 =
+ =    291               if (dimids==NULL)                                                                   392 =
+ =    292   			{                                                                                            393 =
+ =    293                   // individual variable                                                          394 =
+ =    294   				//int size=sizeof(quantity)/sizeof(quantity[0]);                                            395 =
+ =    295                   res = nc_def_dim(ncid, NameVar, size, &dimID[0]);                               396 =
+ =    296                   res = nc_def_var(ncid, NameVar, (nc_type) typeVar, 1, di                        397 =
+ =    297                   // to compress                                                                  398 =
+ =    298   				int shuffle = 1;                                                                            399 =
+ =    299                   int deflate = 1;                                                                400 =
+ =    300                   int deflate_level  = 4;                                                         401 =
+ =    301                   // res = nc_def_var_deflate(ncid, &VarID, shuffle, defla                        402 =
+ =    302   			}                                                                                            403 =
+ =    303   			else                                                                                         404 =
+ =    304   			{                                                                                            405 =
+ =    305   				                                                                                            406 =
+ =    306                   // dependent variable                                                           407 =
+ =    307   				int size=ndims; //sizeof(dimids)/sizeof(dimids[0]);                                         408 =
+ =    308                   res = nc_def_var(ncid, NameVar, (nc_type) typeVar, size                         409 =
+ =    309   			}                                                                                            410 =
+ =    310   			                                                                                             411 =
+ =    311                                                                                                   412 =
+ =    312   		}                                                                                             413 =
+ =    313           if (res !=0)                                                                            414 =
+ =    314   		{                                                                                             415 =
+ =    315   			printf("** error in netcdf create: %i",res);                                                 416 =
+ =    316   			return;                                                                                      417 =
+ =    317   		}                                                                                             418 =
+ =    318   	                                                                                               419 =
+ =    319   	}                                                                                              420 =
+ =    320       void writeAttrib(int ncid, char * nameAttr, char * attrVal, int varI                        421 =
+ =    321   	{                                                                                              422 =
+ =    322   	   int k, res;                                                                                 423 =
+ =    323   	   	res = nc_put_att_text(ncid, varID, nameAttr, sl(attrVal), attrVal);                        424 =
+ =    324   		logErr(res,"error in netcdf creating attribute");                                             425 =
+ =    325   	}                                                                                              426 =
+ =    326                                                                                                   427 =
+ =    327   void NETCDFgetLine(int ix0, int dx, int iy0, int dy, char * fname, char                         428 =
+ =    328   {                                                                                               429 =
+ =    329   	if (mode==0 || mode==3)                                                                        430 =
+ =    330   	{                                                                                              431 =
+ =    331   		int res;                                                                                      432 =
+ =    332   		//int VARID_TIME, VARID_LAT,VARID_LON,VARID_HA;                                               433 =
+ =    333           res = nc_open(fname, NC_CLOBBER, ncid);                                                 434 =
+ =    334   		if (res != 0)                                                                                 435 =
+ =    335   			printf("error opening netcdf file %s\n",fname);                                              436 =
+ =    336   		int vt,vla,vlo,vha;                                                                           437 =
+ =    337           res = nc_inq_varid(*ncid, "TIME", VARID_TIME);                                          438 =
+ =    338           res = nc_inq_varid(*ncid, "LAT", VARID_LAT) ;                                           439 =
+ =    339           res = nc_inq_varid(*ncid, "LON", VARID_LON) ;                                           440 =
+ =    340           res = nc_inq_varid(*ncid, nameV, VARID_HA) ;                                            441 =
+ =    341                                                                                                   442 =
+ =    342   		double *lat_v, *lon_v;                                                                        443 =
+ =    343   		char * nameV=(char*)calloc(256,sizeof(char));                                                 444 =
+ =    344   		lat_v=(double*) calloc(1,sizeof(double));                                                     445 =
+ =    345   		lon_v=(double*) calloc(1,sizeof(double));                                                     446 =
+ =    346   		res = readVarDouble(*ncid, *VARID_LAT, lat_v, nrows,nameV,0);                                 447 =
+ =    347           res = readVarDouble(*ncid, *VARID_LON, lon_v, ncols,nameV,0);                           448 =
+ =    348   		lat_v=(double*) calloc(*nrows,sizeof(double));                                                449 =
+ =    349   		lon_v=(double*) calloc(*ncols,sizeof(double));                                                450 =
+ =    350   		res = readVarDouble(*ncid, *VARID_LAT, lat_v, nrows,nameV,1);                                 451 =
+ =    351           res = readVarDouble(*ncid, *VARID_LON, lon_v, ncols,nameV,1);                           452 =
+ =    352   		                                                                                              453 =
+ =    353   		*dxCell=lon_v[2]-lon_v[1];                                                                    454 =
+ =    354   		*dyCell=lat_v[1]-lat_v[2];                                                                    455 =
+ =    355   		*xmin=lon_v[0]-(*dxCell)/2;                                                                   456 =
+ =    356   		*ymax=lat_v[*nrows-1]-(*dyCell/2);                                                            457 =
+ =    357   		delete [] lon_v,lat_v;                                                                        458 =
+ =    358   		lon_v=NULL;lat_v=NULL;                                                                        459 =
+ =    359   	}                                                                                              460 =
+ =    360   	if (mode==1 || mode==3)                                                                        461 =
+ =    361   	{                                                                                              462 =
+ =    362   		//nXSize=GDALGetRasterXSize( hDstDS );                                                        463 =
+ =    363   		//nYSize=GDALGetRasterYSize( hDstDS );                                                        464 =
+ =    364                                                                                                   465 =
+ =    365   		if (ix0<0 || ix0>=*ncols || iy0<0 || iy0>=*nrows)                                             466 =
+ =    366   		{                                                                                             467 =
+ =    367   			*ierr=-1;                                                                                    468 =
+ =    368   		}                                                                                             469 =
+ =    369   		ierr=0;                                                                                       470 =
+ =    370   		static size_t  startp [3],countp[3];                                                          471 =
+ =    371   		int res;                                                                                      472 =
+ =    372   		//ret=GDALRasterIO( dstband, GF_Read, ix0, iy0, dx,dy,                                        473 =
+ =    373   		//				  scanline, dx, dy, GDT_Float64, 0, 0 );                                                474 =
+ =    374   		startp[0] = IDTime;                                                                           475 =
+ =    375   		startp[1] = iy0;                                                                              476 =
+ =    376   		startp[2] = ix0; //0;                                                                         477 =
+ =    377   		countp[0] = 1;                                                                                478 =
+ =    378   		countp[1] = dy; //1 ;                                                                         479 =
+ =    379   		countp[2] = dx; //*ncols ;                                                                    480 =
+ =    380   		int ncid1,varh;                                                                               481 =
+ =    381   		ncid1=*ncid;varh=*VARID_HA;                                                                   482 =
+ =    382                                                                                                   483 =
+ =    383   		float * scanline1;                                                                            484 =
+ =    384   		scanline1=(float *) calloc(dx*dy,sizeof(float));                                              485 =
+ =    385   		res = nc_get_vara_float(ncid1, varh, startp, countp, scanline1) ;                             486 =
+ =    386   		int n;                                                                                        487 =
+ =    387   		for (n=0;n<dy*dx;n++) 	                                                                       488 =
+ =    388   		{                                                                                             489 =
+ =    389   			scanline[n]=scanline1[n];                                                                    490 =
+ =    390   			//if(scanline[n]>1.)                                                                         491 =
+ =    391   			//	printf("%i   %f\n",n,scanline[n]);                                                        492 =
+ =    392   		}                                                                                             493 =
+ =    393   		delete [] scanline1;                                                                          494 =
+ =    394   		scanline1=NULL;                                                                               495 =
+ =    395   		n=1;                                                                                          496 =
+ =    396   	}                                                                                              497 =
+ =    397   	if (mode==2 || mode==3)                                                                        498 =
+ =    398   	{                                                                                              499 =
+ =    399   		nc_close(*ncid);                                                                              500 =
+ =    400   		//printf("Closed file: %s\n",pszSrc);                                                         501 =
+ =    401   		                                                                                              502 =
+ =    402   		                                                                                              503 =
+ =    403   	}                                                                                              504 =
+ =    404   }                                                                                               505 =
+ =    405                                                                                                   506 =

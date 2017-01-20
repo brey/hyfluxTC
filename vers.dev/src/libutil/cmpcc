@@ -1,0 +1,1 @@
+$CC $1 -c -I/francgu/Download/gsl-1.6  $more_flag $CFLAGS -Daddunderscore

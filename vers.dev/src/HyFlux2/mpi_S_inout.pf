@@ -1,0 +1,159 @@
+#define DEB c
+*proc master_to_slave
+c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        subroutine S_$1_master_to_slave (val, tag)
+c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        use parallel_data
+        implicit none
+        integer(i4) siz/1/,tag, i
+        $2 val
+
+
+        if (MASTER) then
+          do i = 1, ncore-1
+*	  print *,'send: i=',i,' siz=',siz,' tag=',tag
+          call mpi_send (val,siz, $3, i, tag
+     &               , mpi_comm_world, mpi_erro)
+          enddo
+        endif
+
+        if (SLAVE) then
+DEB	print *,'$1_recv: icore=',icore,' siz=',siz
+        call mpi_recv (val,siz, $3, 0, tag
+     &               , mpi_comm_world, mpi_stato, mpi_erro)
+        endif      
+
+*        call mpi_barrier (mpi_comm_world, mpi_erro)       
+ 
+        return
+        end
+*proc master_to_post
+c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        subroutine S_$1_master_to_post (val, tag)
+c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        use parallel_data
+        implicit none
+        integer(i4) siz/1/,tag, i
+        $2 val
+
+
+        if (MASTER) then
+        i = ncore
+* 	  print *,'$1_send: i=',i,' siz=',siz,' tag=',tag
+          call mpi_send (val,siz, $3, i, tag
+     &               , mpi_comm_world, mpi_erro)
+        endif
+
+        if (POST) then
+* 	print *,'$1_recv: icore=',icore,' siz=',siz
+        call mpi_recv (val,siz, $3, 0, tag
+     &               , mpi_comm_world, mpi_stato, mpi_erro)
+        endif      
+
+*        call mpi_barrier (mpi_comm_world, mpi_erro)       
+ 
+        return
+        end
+
+*proc slave_to_master
+c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        subroutine S_$1_slave_to_master (val, tag,ifun)
+c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        use parallel_data
+       use constants
+        implicit none
+        integer(i4) siz/1/,tag, i, j, ifun
+        $2 val,val1
+
+        if (SLAVE) then
+        call mpi_send (val,siz, $3, 0, tag
+     &               , mpi_comm_world, mpi_erro)
+        endif      
+
+        if (MASTER) then
+          do i = 1, ncore-1
+DEB	print *,'$1_recv: i=',i,' siz=',siz
+          call mpi_recv (val1,siz, $3, i, tag
+     &               , mpi_comm_world, mpi_stato, mpi_erro)
+
+            if (ifun.eq.Fmov) then
+            val = val1
+            else if (ifun.eq.Fsum) then
+            val = val + val1
+            else if (ifun.eq.Fdif) then
+            val = val - val1
+            else if (ifun.eq.Fmin) then
+            val = min(val,val1)
+            else if (ifun.eq.Fmax) then
+            val = max(val,val1)
+            else
+            write (iout,*) 'ifun=',ifun
+            call logout(2,'Error in S_$1_slave_to_master')
+            endif
+
+          enddo
+        endif
+
+        return
+        end
+
+*proc post_to_master
+c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        subroutine S_$1_post_to_master (val, tag,ifun)
+c:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
+        use parallel_data
+       use constants
+        implicit none
+        integer(i4) siz/1/,tag, i, j, ifun
+        $2 val, val1
+
+        if (POST) then
+        call mpi_send (val,siz, $3, 0, tag
+     &               , mpi_comm_world, mpi_erro)
+        endif      
+
+        if (MASTER) then
+        i = ncore
+          call mpi_recv (val1,siz, $3, i, tag
+     &               , mpi_comm_world, mpi_stato, mpi_erro)
+DEB	print *,'$1_recv: i=',i,' siz=',siz
+
+            if (ifun.eq.Fmov) then
+            val = val1
+            else if (ifun.eq.Fsum) then
+            val = val + val1
+            else if (ifun.eq.Fdif) then
+            val = val - val1
+            else if (ifun.eq.Fmin) then
+            val = min(val,val1)
+            else if (ifun.eq.Fmax) then
+            val = max(val,val1)
+            else
+            write (iout,*) 'ifun=',ifun
+            call logout(2,'Error in S_$1_slave_to_master')
+            endif
+        endif
+
+ 
+        return
+        end
+
+*end
+
+$exec master_to_slave real4 real(r4) mpi_real4
+$exec master_to_slave real8 real(r8) mpi_real8
+$exec master_to_slave integer4 integer(i4) mpi_integer4
+$exec master_to_slave integer1 integer*1 mpi_integer1
+$exec master_to_slave logical1 logical*1 mpi_logical1
+$exec master_to_slave logical4 logical(i4) mpi_logical4
+
+$exec master_to_post real4 real(r4) mpi_real4
+$exec master_to_post real8 real(r8) mpi_real8
+$exec master_to_post integer4 integer(i4) mpi_integer4
+$exec master_to_post logical4 logical(i4) mpi_logical4
+
+$exec slave_to_master real4 real(r4) mpi_real4 
+$exec slave_to_master real8 real(r8) mpi_real8
+$exec slave_to_master integer4 integer(i4) mpi_integer4
+
+$exec post_to_master real4 real(r4) mpi_real4

@@ -1,0 +1,3 @@
+s/%s..%sImageMagik//g
+s/CurrentDir,barra,barra,barra,/CurrentDir,barra,/g
+s/CurrentDir, barra, barra, barra,/CurrentDir,barra,/g

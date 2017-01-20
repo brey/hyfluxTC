@@ -1,0 +1,53 @@
+
+*********************************************
+*       Tsunami input deck: 13/10/2011 9:34:02 AM                   
+*********************************************
+* General data
+Title=             $Title
+outPath=           $outPath
+URL_calc=                                                                       
+*
+DateTsunami=       $DateTsunami
+*
+*  Calculation parameters  *
+InTime=            $InTime
+FinTime=           $FinTime
+Tout=              $Tout
+Tsave=             $Tsave
+dtMax=             $batgridNest   *  from env
+fanning=0.015
+*
+*  Fault parameters (nfaults=1) *
+*-------------------------------------------
+FaultNumber=       1                                                            
+*-------------------------------------------
+*  EPICENTER  *
+Lat=               $Lat      * degree                                           
+Lon=               $Lon       * degree                                           
+Mag=               $Mag       * Richter Scale                                    
+faultform=         8         * Okada parameters                                 
+AutomaticFault=    True
+flenght=           $flenght       * km                                               
+fwidth=            $fwidth       * km                                               
+strike=            $strike         * degree  (geog North=0)                           
+slip=              $slip      * m                                                
+dip=               $dip        * degree                                           
+rake=              $rake        * degree                                           
+depth=             $depth         * km                                               
+ipodepth=          $ipodepth         * km                                               
+------end of fault 1------------
+
+
+FaultMode=         0                                                            
+*  Compiler parameters  *
+compiler=          $code              *  from env                              
+*
+*  Grid parameters  *
+constbat=          False     * for back compatibility                           
+automscale=        False     * for back compatibility                           
+batgrid=           $batgridNest       *  from env                                      
+
+* calculation window
+
+      
+bathymetry=        GEBCO30                                                        

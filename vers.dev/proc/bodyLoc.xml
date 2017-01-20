@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<rss version="0.91" xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos\#">
+<channel>
+<title>$calcType.</title>
+
+<item>
+<title><![CDATA[
+Lat/lon/mag: $Lat./$Lon./$Mag 
+]]></title>
+
+<!-- 
+Maximum water Height maxzmax=$maxzmax (m) at location $placezmax   
+-->
+
+
+<description> 
+Latitude = $Lat &lt;BR&gt;
+Longitude= $Lon &lt;BR&gt;
+Magnitude= $Mag &lt;BR&gt;
+</description>
+
+<image>/P1_MAXHEIGHT_END.jpg</image>
+<geo:lat>$Lat.</geo:lat>
+<geo:long>$Lon.</geo:long>
+<Magnitude>$Mag.</Magnitude>  <!-- aggiunto --> 
+
+<dc:subject xmlns:dc="dc">EPICENTER</dc:subject>
+
+<pubDate>$DateTsunami.</pubDate>
+
+<!-- dx simulation (min) -->
+<dxSimulation>$dxSimulation.</dxSimulation>
+
+<maxzmax>$maxzmax.</maxzmax>
+<placezmax>$placezmax.</placezmax>
+
+
+<initialConditions>
+    <Fault>
+<Lenght>  $flenght </Lenght>
+	    <Width>  $fwidth </Width>
+       <Height>$slip </Height>
+       <Form>8</Form>
+
+<faultMagnitude>$Mag.</faultMagnitude>  <!-- aggiunto --> 
+  <faultLongitude>$Lon.</faultLongitude>  <!-- aggiunto --> 
+  <faultLatitude>$Lat.</faultLatitude>  <!-- aggiunto --> 
+
+       <Mode>$FaultMode.</Mode>
+       <Angle type="trig angle: north=90, south=-90"> $FaultAngle. </Angle>
+       <okadaPar>
+          <strike type="geogr angle: north=0, south=180"> $strike </strike>
+          <dip>$dip </dip>
+          <rake>$rake </rake>
+          <depth typedepth="top of the fault" >$depth </depth>
+          <depth typedepth="center of the fault" >$ipodepth </depth>
+         </okadaPar>
+   </Fault>
+   <Bathym> $batgrid </Bathym>
+   <window>
+       <lonmin>$lonmin </lonmin>
+       <lonmax>$lonmax </lonmax>
+       <latmin>$latmin </latmin>
+       <latmax>$latmax </latmax>
+   </window>
+   <dtMax>$dtMax </dtMax>
+</initialConditions>
+</item>
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!!! locations
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+<Locations>
+<item>
+<title><![CDATA[
+$country.: $place ($MaxHei m)
+]]></title>
+
+<description><![CDATA[
+Country: $country  
+Location: $place 
+Arrival Date: $dateTime
+Max Height: $MaxHei m
+Date Max Height: $dateMaxHei
+]]></description>
+
+<pubDate>$dateTsunami.</pubDate>
+<cityName>$place.</cityName>
+<country>$country.</country>
+<maxHeight>$MaxHei.</maxHeight>
+<timeMaxH>$tMaxHei.</timeMaxH>
+<dateMaxH>$dateMaxHei.</dateMaxH>
+<timeArrival>$ArrTime.</timeArrival>
+<dateArrival>$ArrivalTS.</dateArrival>
+<cityClass>$cityclass.</cityClass>
+<popEst>$popest.</popEst>
+<areaInundated>$areaInundated.</areaInundated>
+<popInundated>$popInundated.</popInundated>
+<geo:long>$lon.</geo:long>
+<geo:lat>$lat.</geo:lat>
+<!-- 
+Maximum Height in deep water (m): $zmaxSea 
+Maximum Height in the shoreline (m): $zmaxShore 
+Maximum Inundation Height (m): $simMaxHeight 
+Runup distance from shoreline (m): $simDistRunup 
+-->
+<zmaxSea>$zmaxSea.</zmaxSea>
+<zmaxShore>$zmaxShore.</zmaxShore>
+<simMaxHeight>$simMaxHeight.</simMaxHeight>
+<simDistRunup>$simDistRunup.</simDistRunup>
+
+
+</item>
+</Locations>
+</channel>
+</rss>

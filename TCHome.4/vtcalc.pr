@@ -1,0 +1,101 @@
+reset maxcc
+
+ang deg
+radius=6378388
+deg2m=pigr*radius/180
+
+if (exist(long)) goto next
+
+read $inpfile1 tab
+
+exec longSign.pr
+
+sig=sign(1,long)
+
+m=sig.ne.sig1
+if (sum(m).eq.0) goto next
+i=getm(m,do(size(m)))
+
+if (sig1.gt.0) long_i = long_i+360
+if (sig1.lt.0) long_i = long_i-360
+
+$$$$ next
+
+?
+
+tsec=time*3600
+n=size(tsec)
+check
+
+t1000=aprog(1000,tsec_1,tsec_n)
+family t1000
+
+x=long
+y=lat
+
+nv=size(tsec)
+
+if (nv.le.2) then
+x1000 = linterp(t1000,tsec,x)
+y1000 = linterp(t1000,tsec,y)
+else if (nv.eq.3) then
+x1000 = pinterp(t1000,tsec,x)
+y1000 = pinterp(t1000,tsec,y)
+else
+x1000 = sinterp(t1000,tsec,x)
+y1000 = sinterp(t1000,tsec,y)
+endif
+
+s1000 = 0,isum(sqrt(delta(x1000)^2+delta(y1000)^2))
+family t1000 s1000
+
+laser on
+plot
+x x1000 x
+y y1000 y
+line off y
+symb on y
+label x long
+label y lat
+end
+laser off
+!convert laser.ps plot/track.gif
+
+dt=tsec_2-tsec_1
+t1=max(tsec-dt,tsec_1)
+t2=min(tsec+dt,tsec_n)
+
+
+s1=s1000(t1)
+s2=s1000(t2)
+x1=x1000(t1)
+x2=x1000(t2)
+y1=y1000(t1)
+y2=y1000(t2)
+
+t1h=t1/3600
+t2h=t2/3600
+
+cincl=(x2-x1)/(s2-s1)
+sincl=(y2-y1)/(s2-s1)
+vt=(s2-s1)/(t2-t1)
+
+vtrx = vt * cincl *deg2m*cos(lat)
+vtry = vt * sincl *deg2m
+
+vtr = sqrt(vtrx^2+vtry^2)
+
+time1=time
+
+write vtcal.txt time1 vtr cincl sincl vtrx vtry tab
+
+
+t1=(tsec(:n-1)+tsec(2:))/2
+
+laser on
+plot
+x tsec t1 tsec t1
+y vtrx delta(x)/delta(tsec)*deg2m*cos(y(2:)-delta(y)/2) vtry delta(y)/delta(tsec)*deg2m 
+end
+laser off
+!convert laser.ps plot/vt.gif

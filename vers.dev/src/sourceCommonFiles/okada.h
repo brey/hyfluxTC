@@ -1,0 +1,1 @@
+long  getOkada(long AddFlag, long dummy, double fault_lenght, double  fault_width,double top_depth,double dip,double th,double rake,double slip,double x_epic,double y_epic,float x_min, float x_max, float y_min, float y_max,float x_inc,float y_inc, float *z);

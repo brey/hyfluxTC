@@ -1,0 +1,127 @@
+%echo off
+reset maxcc
+clear
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% GFS Product
+% 0.5 deg (fh 00-192) in GRIB2 format
+% 0-6 hour acc, APCP, Total Precipitation [kg/m^2] == [mm/m^2]
+% ftp://ftp.ncep.noaa.gov/pub/data/nccf/com/gfs/prod/gfs.yyyymmddcc/gfs.tccz.pgrb2fxxx
+%    cc is the model cycle runtime (i.e. 00, 06, 12, 18)
+%    xxx is the forecast hour of product from 00 - 384
+%--------------------------------------------------------------------------------------
+% MAPPE RAIN Accum 3h
+% mappe 6h - mappe 3h --> mappe 3h
+%--------------------------------------------------------------------------------------
+% MAPPE TC GRID
+% GFS: 0° - 360°
+% In TC program -180° : +180°
+% --> trasf mappe GFS (-180° a 180°)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%---------------------------------------
+% DA FARE
+% - Controllare grid da -180 a + 180
+% !!!!!! tmax --> ex 9
+%---------------------------------------
+
+
+%---------------------------------------
+%  outmap=1  GTiff
+%  outmap=2  PCRaster
+outmap=1
+outmap=$1
+
+if (outmap.eq.1) then
+   setexp ext tif
+else if (outmap.eq.2) then
+   setexp ext map
+endif
+
+%---------------------------------------
+% input file con inp --> infoGFS.pr -->  tmin, tmax
+exec infoGFS.pr
+
+%---------------------------------------
+% input GRID
+ydiff=180
+
+?
+%#########################################
+%---------------------------------------
+% ciclo su t da tmin a tmax
+
+tmin=max(tmin,6)
+tmin=int(tmin/6)*6
+tmax=int(tmax/6)*6
+
+if (tmax.lt.tmin) then 
+   line tmax= #tmax 
+   maxcc=1
+   pend
+endif
+
+
+t6h=tmin
+t3h=t6h-3
+imax=int(tmax/6)
+
+!echo "rain	from	to" > inforain.txt
+
+
+do lab1 imax
+
+%---------------------------------------
+% Set input/output and get maps
+
+%  rain: 6h --> (ex: 00 - 06 accum rain)
+   if (t6h.le.9) then
+      setexp inpfile6h rain.0@t6h..tif
+      setexp outfile6h rain.0@t6h..$ext
+   else
+      setexp inpfile6h rain.@t6h..tif
+      setexp outfile6h rain.@t6h..$ext
+   endif   
+   getmap rain6h $inpfile6h
+
+%---------------------------------------
+% rain 3h --> (ex: 00 - 03 accum rain)
+   if (t3h.le.9) then
+      setexp inpfile3h rain.0@t3h..tif
+      setexp outfile3h rain.0@t3h..$ext
+   else
+      setexp inpfile3h rain.@t3h..tif
+      setexp outfile3h rain.@t3h..$ext
+   endif   
+   getmap rain3h $inpfile3h
+
+%---------------------------------------
+% Diff: 6h - 3h --> (ex: 03 - 06 accum rain)
+   raindiff=rain6h - rain3h
+
+%---------------------------------------
+% griglia GFS (0°-360°) --> Model (-180° - +180°)
+
+   XSTART=XSTART-xdiff  
+   YSTART=YSTART-ydiff  
+
+%---------------------------------------
+% creazione mappe
+   if (outmap.eq.1) then
+      setexp DRIVER GTiff
+   else if (outmap.eq.2) then
+      setexp DRIVER PCRaster
+      TYPE=4
+   endif
+
+   putmap rain3h $outfile3h
+   !echo "$outfile3h.	@(t3h-3).	@t3h." >> inforain.txt
+
+   putmap raindiff $outfile6h
+   !echo "$outfile6h.	@t3h.	@t6h." >> inforain.txt
+
+   t6h=t6h+6
+   t3h=t3h+6
+
+end lab1
+
+

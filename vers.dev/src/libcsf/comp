@@ -1,0 +1,19 @@
+ 
+makedir
+ 
+ 
+library=$lib/libcsf.a
+ 
+
+$CC *.c -c -w -D$hostser -D$cpusize
+ 
+ 
+if [ -f $library ]
+then rm $library
+fi
+ 
+$ar -qv $library *.o
+$ar -ts $library
+ 
+rm *.o
+

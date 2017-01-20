@@ -1,0 +1,28 @@
+c
+      subroutine lowstr(buf,lbuf)
+      character buf*(*),char*1,cap(26)*1,low(26)*1
+      dimension ich(0:255)
+      logical first
+      save first,low,cap,ich
+      data low/'a','b','c','d','e','f','g','h','i','j'
+     &,'k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'/
+      data cap/'A','B','C','D','E','F','G','H','I','J'
+     &,'K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'/
+      data first/.true./
+c
+      if (first)then
+      do i=0,255
+      ich(i)=i
+      enddo
+      do i=1,26
+      ich(ichar(cap(i)))=ichar(low(i))
+      enddo
+      first=.false.
+      endif
+c
+      do i=1,lbuf
+      buf(i:i)=char(ich(ichar(buf(i:i))))
+      enddo
+c
+      return
+      end

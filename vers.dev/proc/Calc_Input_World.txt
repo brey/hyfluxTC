@@ -1,0 +1,29 @@
+
+*********************************************
+*       Tsunami input deck: 13/10/2011 9:34:02 AM                   
+*********************************************
+* General data
+Title=             World  Travel Time
+*
+DateTsunami=       $DateTsunami
+*-------------------------------------------
+*  EPICENTER  *
+Lat=               $Lat      * degree                                           
+Lon=               $Lon       * degree                                           
+* calculation window
+lonmin=            $lonmin    * lon-180
+lonmax=            $lonmax    * lon=180
+*-------------------------------------------
+*  Calculation parameters  *
+InTime=            0
+FinTime=           24 * h
+Tout=              24 * h
+Tsave=             60 * min
+dtMax=             60 * s  
+fanning=0.015
+*
+
+latmin=            -80                                                           
+latmax=            65   
+      
+batgrid = 30 * min

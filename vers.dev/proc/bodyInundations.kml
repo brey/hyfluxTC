@@ -1,0 +1,83 @@
+﻿</Folder>
+
+ 
+ 
+<!--                                -->
+<!--            Inundations           -->
+<!--                                -->
+ 
+<Folder> <name>Inundation</name>
+<open>0</open>
+ 
+<Locations>
+ 
+<!--            $place           -->
+ 
+<Placemark>
+<name><![CDATA[
+@simDistRunup m
+]]></name>
+<visibility>0</visibility>
+<description><![CDATA[
+!<table width=$tabwidth.><td valign=top>
+<b> Location: $place </b>  <br />
+<b> Country: $country </b> <br />
+CityClass: $cityclass <br />
+Lat/Lon: $lat./$lon.  <br />
+Location id: $id  <br />
+ <br />
+Time of Arrival(hh:mm): $ArrTime <br />
+Time of Maximum Height (hh:mm): $tMaxHei <br />
+Date of Arrival: $ArrivalTS <br />
+Date of Maximum Height: $dateMaxHei <br />
+<b> Maximum Heights evaluated within maximum 25 km radius </b> <br />
+Maximum Inundation Height (m): #simInundation  <br />
+Maximum Height (m) in water depth > 20 m : #zmaxSea <br />
+Maximum Height (m) in the shoreline: #zmaxShore <br />
+Maximum Runup Height (m): #simRunup <br />
+<b> Maximum runup distance from shoreline (m): @simDistRunup </b> <br />
+Inundated Area (km^2): #areaInundated <br />
+<b> Pop. in the Inundated Area: @popInundated </b> <br />
+Values from file: $locFile  <br />
+!</td>
+! <td> <img src="$plot."> </td>
+!</table>
+]]> </description>
+<Region>
+<LatLonAltBox>
+	<north>  $latmax </north>
+	<south> $latmin </south>
+	<east> $lonmax </east>
+	<west> $lonmin </west>
+</LatLonAltBox>
+    <Lod>
+          <minLodPixels>2000 </minLodPixels>
+          <maxLodPixels>-1 </maxLodPixels>
+    </Lod>
+</Region>
+	  <Style>
+        <IconStyle>
+          <color> $color </color>
+          <scale>0.8</scale>
+!          <Icon>              <href>root://icons/palette-4.png</href> <y>160</y><w>32</w><h>32</h>          </Icon>
+      <Icon>  <href>http://maps.google.com/mapfiles/kml/shapes/water.png</href>        </Icon>
+          <hotSpot x="32" y="1" xunits="pixels" yunits="pixels"/>
+       </IconStyle>
+		<LabelStyle>
+		<scale>0.8</scale>
+		</LabelStyle>
+    </Style>
+		<LookAt>
+			<longitude>$lon.</longitude>
+			<latitude>$lat.</latitude>
+			<altitude>0</altitude>
+			<range>20000</range>
+			<tilt>0</tilt>
+			<altitudeMode>relativeToGround</altitudeMode>
+			<gx:altitudeMode>relativeToSeaFloor</gx:altitudeMode>
+		</LookAt>
+    <Point>
+        <coordinates>$lon.,$lat.,0</coordinates>
+    </Point>
+</Placemark>
+</Locations>

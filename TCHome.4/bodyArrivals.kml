@@ -1,0 +1,19 @@
+﻿
+</Folder>
+ 
+<Folder>
+<name>Arrival time</name>
+<open>0</open>
+	<NetworkLink>
+		<name>Tarrival_60min</name>
+		<visibility>0</visibility>
+		<Link>
+			<href>Tarrival_60min.kml</href>
+		</Link>
+	</NetworkLink>
+</Folder>
+
+
+</Document>
+</kml>
+

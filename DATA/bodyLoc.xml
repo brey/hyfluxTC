@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<rss version="0.91" xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#">
+<channel>
+
+<item>
+<title><![CDATA[ $Title.]]></title>
+<description>
+Longitude= $Lat &lt;BR&gt;
+Latitude = $Lon &lt;BR&gt;
+Magnitude = $Mag &lt;BR&gt;
+</description>
+
+<image>./P1_MAXHEIGHT_END.jpg</image>
+<location>$Title.</location>
+<geo:lat>$Lat.</geo:lat>
+<geo:long>$Lon.</geo:long><depth></depth>
+<dc:subject xmlns:dc="dc">EPICENTER</dc:subject>
+<pubDate>$DateTsunami.</pubDate>
+<link></link>
+
+<initialConditions>
+    <Fault>
+<Lenght>$flenght.</Lenght>
+	    <Width>$fwidth.</Width>
+       <Height>$slip.</Height>
+       <Form>8</Form>
+       <Magnitude>$Mag.</Magnitude>
+       <Mode>$FaultMode.</Mode>
+       <Angle type="trig angle: north=90, south=-90">$FaultAngle.</Angle>
+       <okadaPar>
+          <strike type="geogr angle: north=0, south=180">$strike.</strike>
+          <dip>$dip.</dip>
+          <rake>$rake.</rake>
+          <depth depthtype="top of the fault">$depth.</depth>
+		  <depth depthtype="middle of the fault">$ipodepth.</depth>
+         </okadaPar>
+  </Fault>
+   <Bathym>$batgrid.</Bathym>
+   <window>
+       <lonmin>$lonmin.</lonmin>
+       <lonmax>$lonmax.</lonmax>
+       <latmin>$latmin.</latmin>
+       <latmax>$latmax.</latmax>
+  </window>
+   <dtMax>$dtMax.</dtMax>
+</initialConditions>
+</item>
+<Locations>
+<item>
+<title><![CDATA[$country.: $place ($MaxHei. m)]]></title>
+<description><![CDATA[Country: $country.
+Location: $place.
+Time (hh:mm): $ArrTime.
+Max Height: $MaxHei. m
+Time Max (hh:mm): $tMaxHei.
+]]></description>
+<pubDate>$ArrivalTS.</pubDate>
+<cityName>$place.</cityName>
+<country>$country.</country>
+<maxHeight>$MaxHei.</maxHeight>
+<timeMaxH>$tMaxHei.</timeMaxH>
+<timeArrival>$ArrTime.</timeArrival>
+<cityClass>$cityclass.</cityClass>
+<popEst>$popest</popEst>
+<geo:long>$lon.</geo:long>
+<geo:lat>$lat.</geo:lat>
+<dc:subject xmlns:dc="dc">0</dc:subject>
+<cputime>9</cputime>
+</item>
+</Locations>
+</channel>
+</rss>

@@ -1,0 +1,101 @@
+%echo off
+reset maxcc
+clear
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% GFS Product
+% 0.5 deg (fh 00-192) in GRIB2 format
+%---------------------------------------
+% MAPPE TC GRID
+% GFS: 0° - 360°
+% In TC program -180° : +180°
+% --> trasf mappe GFS (-180° a 180°)
+%---------------------------------------
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%---------------------------------------
+% set MAP format
+%  outmap=1  GTiff
+%  outmap=2  PCRaster
+outmap=1
+outmap=$1
+
+if (outmap.eq.1) then
+   setexp ext tif
+else if (outmap.eq.2) then
+   setexp ext map
+endif
+
+%---------------------------------------
+% read inpfile --> infoGFS.pr -->  tmin, tmax, xdiff, varS, nvar
+exec infoGFS.pr
+
+dt=3
+tmin=int(tmin/dt)*dt
+tmax=int(tmax/dt)*dt
+
+
+if (tmax.lt.tmin) then 
+   line tmax= #tmax 
+   maxcc=1
+   pend
+endif
+
+%!!!!!!!!! c'é anche time=0
+imax=int(tmax/3)+1
+
+%---------------------------------------
+% input GRID
+ydiff=180
+
+
+%##############################################
+% Ciclo sulle var, poi ciclo sul time
+
+setexp rain rain
+
+i=0
+do lab0 nvar
+   i=i+1
+   setexp var $$var@i
+
+   if (compexp(var,rain)) eof
+
+   setexp outinfo info$var..txt
+   !echo "$var.	time" > $outinfo.
+
+   t3h=tmin
+   do lab1 imax
+
+      if (t3h.le.9) then
+         setexp inpfile3h $var..0@t3h..tif
+         setexp outfile3h $var..0@t3h..$ext
+      else
+         setexp inpfile3h $var..@t3h..tif
+         setexp outfile3h $var..@t3h..$ext
+      endif   
+      getmap $var.3h $inpfile3h
+
+%---------------------------------------
+% griglia GFS (0°-360°) --> Model (-180° - +180°)
+
+      XSTART=XSTART-xdiff  
+      YSTART=YSTART-ydiff  
+ 
+%---------------------------------------
+% creazione mappe
+      if (outmap.eq.1) then
+         setexp DRIVER GTiff
+      else if (outmap.eq.2) then
+         setexp DRIVER PCRaster
+         TYPE=4
+      endif
+
+      putmap $var.3h $outfile3h
+      !echo "$outfile3h.	@t3h." >> $outinfo
+
+      t3h=t3h+dt
+
+   end lab1
+
+end lab0

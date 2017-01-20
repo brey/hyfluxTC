@@ -1,0 +1,28 @@
+# all .o files
+*.o
+ 
+# strm30
+DATA/srtm30_plus-v5.0
+ 
+# python pyc files
+*.pyc
+ 
+#.swp files
+*.swp
+
+# mod files
+*.mod
+
+# .a libraries
+*.a
+
+#log file
+logCalls.txt
+
+#work folders
+publicVM/
+storage/
+storage.local/
+
+# tif files in DATA
+DATA/*.tif

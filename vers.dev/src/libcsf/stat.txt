@@ -1,0 +1,374 @@
+
+**********************************************************************
+                    MODUL:                 angle.c                                 
+ ROUTINE  main0001         nlines     64 ncomments     33 %  51.56
+
+**********************************************************************
+                    MODUL:                 attravai.c                              
+ ROUTINE  main0001         nlines     31 ncomments     18 %  58.06
+
+**********************************************************************
+                    MODUL:                 attrsize.c                              
+ ROUTINE  main0001         nlines     26 ncomments     13 %  50.00
+
+**********************************************************************
+                    MODUL:                 cellsize.c                              
+ ROUTINE  main0001         nlines    101 ncomments     67 %  66.34
+
+**********************************************************************
+                    MODUL:                 create2.c                               
+ ROUTINE  main0001         nlines    229 ncomments     49 %  21.40
+
+**********************************************************************
+                    MODUL:                 csfglob.c                               
+ ROUTINE  main0001         nlines     19 ncomments     12 %  63.16
+
+**********************************************************************
+                    MODUL:                 csfsup.c                                
+ ROUTINE  main0001         nlines     49 ncomments     27 %  55.10
+
+**********************************************************************
+                    MODUL:                 delattr.c                               
+ ROUTINE  main0001         nlines     69 ncomments     43 %  62.32
+
+**********************************************************************
+                    MODUL:                 dumconv.c                               
+ ROUTINE  main0001         nlines     61 ncomments     51 %  83.61
+
+**********************************************************************
+                    MODUL:                 endian.c                                
+ ROUTINE  main0001         nlines     25 ncomments     13 %  52.00
+
+**********************************************************************
+                    MODUL:                 filename.c                              
+ ROUTINE  main0001         nlines     37 ncomments     29 %  78.38
+
+**********************************************************************
+                    MODUL:                 gattrblk.c                              
+ ROUTINE  main0001         nlines     83 ncomments     51 %  61.45
+
+**********************************************************************
+                    MODUL:                 gattridx.c                              
+ ROUTINE  main0001         nlines     46 ncomments     29 %  63.04
+
+**********************************************************************
+                    MODUL:                 gcellrep.c                              
+ ROUTINE  main0001         nlines     18 ncomments      9 %  50.00
+
+**********************************************************************
+                    MODUL:                 gdattype.c                              
+ ROUTINE  main0001         nlines     43 ncomments     34 %  79.07
+
+**********************************************************************
+                    MODUL:                 getattr.c                               
+ ROUTINE  main0001         nlines     75 ncomments     38 %  50.67
+
+**********************************************************************
+                    MODUL:                 _getcell.c                              
+ ROUTINE  main0001         nlines     34 ncomments     17 %  50.00
+
+**********************************************************************
+                    MODUL:                 _getrow.c                               
+ ROUTINE  main0001         nlines     33 ncomments     16 %  48.48
+
+**********************************************************************
+                    MODUL:                 getx0.c                                 
+ ROUTINE  main0001         nlines     37 ncomments     27 %  72.97
+
+**********************************************************************
+                    MODUL:                 gety0.c                                 
+ ROUTINE  main0001         nlines     40 ncomments     30 %  75.00
+
+**********************************************************************
+                    MODUL:                 ggisfid.c                               
+ ROUTINE  main0001         nlines     42 ncomments     32 %  76.19
+
+**********************************************************************
+                    MODUL:                 gmaxval.c                               
+ ROUTINE  main0001         nlines     42 ncomments     19 %  45.24
+
+**********************************************************************
+                    MODUL:                 gminval.c                               
+ ROUTINE  main0001         nlines     44 ncomments     21 %  47.73
+
+**********************************************************************
+                    MODUL:                 gnrcols.c                               
+ ROUTINE  main0001         nlines     40 ncomments     31 %  77.50
+
+**********************************************************************
+                    MODUL:                 gnrrows.c                               
+ ROUTINE  main0001         nlines     40 ncomments     31 %  77.50
+
+**********************************************************************
+                    MODUL:                 gproj.c                                 
+ ROUTINE  main0001         nlines     40 ncomments     32 %  80.00
+
+**********************************************************************
+                    MODUL:                 gputproj.c                              
+ ROUTINE  main0001         nlines     57 ncomments     38 %  66.67
+
+**********************************************************************
+                    MODUL:                 _gsomece.c                              
+ ROUTINE  main0001         nlines     47 ncomments     22 %  46.81
+
+**********************************************************************
+                    MODUL:                 gvalscal.c                              
+ ROUTINE  main0001         nlines     38 ncomments     30 %  78.95
+
+**********************************************************************
+                    MODUL:                 gvartype.c                              
+ ROUTINE  main0001         nlines     45 ncomments     26 %  57.78
+
+**********************************************************************
+                    MODUL:                 gversion.c                              
+ ROUTINE  main0001         nlines     36 ncomments     26 %  72.22
+
+**********************************************************************
+                    MODUL:                 ismv.c                                  
+ ROUTINE  main0001         nlines     81 ncomments     41 %  50.62
+
+**********************************************************************
+                    MODUL:                 kernlcsf.c                              
+ ROUTINE  main0001         nlines    156 ncomments     85 %  54.49
+
+**********************************************************************
+                    MODUL:                 legend.c                                
+ ROUTINE  main0001         nlines    139 ncomments     46 %  33.09
+
+**********************************************************************
+                    MODUL:                 mclose.c                                
+ ROUTINE  main0001         nlines    101 ncomments     30 %  29.70
+
+**********************************************************************
+                    MODUL:                 mopen.c                                 
+ ROUTINE  main0001         nlines    197 ncomments     78 %  39.59
+
+**********************************************************************
+                    MODUL:                 moreattr.c                              
+ ROUTINE  main0001         nlines    186 ncomments    118 %  63.44
+
+**********************************************************************
+                    MODUL:                 mperror.c                               
+ ROUTINE  main0001         nlines     89 ncomments     40 %  44.94
+
+**********************************************************************
+                    MODUL:                 pgisfid.c                               
+ ROUTINE  main0001         nlines     51 ncomments     33 %  64.71
+
+**********************************************************************
+                    MODUL:                 pmaxval.c                               
+ ROUTINE  main0001         nlines     67 ncomments     45 %  67.16
+
+**********************************************************************
+                    MODUL:                 pminval.c                               
+ ROUTINE  main0001         nlines     68 ncomments     46 %  67.65
+
+**********************************************************************
+                    MODUL:                 putallmv.c                              
+ ROUTINE  main0001         nlines     61 ncomments     17 %  27.87
+
+**********************************************************************
+                    MODUL:                 putattr.c                               
+ ROUTINE  main0001         nlines    219 ncomments     65 %  29.68
+
+**********************************************************************
+                    MODUL:                 _putcell.c                              
+ ROUTINE  main0001         nlines     36 ncomments     16 %  44.44
+
+**********************************************************************
+                    MODUL:                 putsomec.c                              
+ ROUTINE  main0001         nlines    271 ncomments    123 %  45.39
+
+**********************************************************************
+                    MODUL:                 putx0.c                                 
+ ROUTINE  main0001         nlines     51 ncomments     33 %  64.71
+
+**********************************************************************
+                    MODUL:                 puty0.c                                 
+ ROUTINE  main0001         nlines     52 ncomments     34 %  65.38
+
+**********************************************************************
+                    MODUL:                 pvalscal.c                              
+ ROUTINE  main0001         nlines     59 ncomments     42 %  71.19
+
+**********************************************************************
+                    MODUL:                 rattrblk.c                              
+ ROUTINE  main0001         nlines     44 ncomments     25 %  56.82
+
+**********************************************************************
+                    MODUL:                 rcomp.c                                 
+ ROUTINE  main0001         nlines     64 ncomments     34 %  53.12
+
+**********************************************************************
+                    MODUL:                 rcoords.c                               
+ ROUTINE  main0001         nlines     92 ncomments     45 %  48.91
+
+**********************************************************************
+                    MODUL:                 rdup2.c                                 
+ ROUTINE  main0001         nlines     57 ncomments     26 %  45.61
+
+**********************************************************************
+                    MODUL:                 reseterr.c                              
+ ROUTINE  main0001         nlines     37 ncomments     29 %  78.38
+
+**********************************************************************
+                    MODUL:                 rextend.c                               
+ ROUTINE  main0001         nlines     78 ncomments     26 %  33.33
+
+**********************************************************************
+                    MODUL:                 rmalloc.c                               
+ ROUTINE  main0001         nlines     40 ncomments     26 %  65.00
+
+**********************************************************************
+                    MODUL:                 _rputrow.c                              
+ ROUTINE  main0001         nlines     37 ncomments     19 %  51.35
+
+**********************************************************************
+                    MODUL:                 rrowcol.c                               
+ ROUTINE  main0001         nlines    101 ncomments     38 %  37.62
+
+**********************************************************************
+                    MODUL:                 ruseas.c                                
+ ROUTINE  main0001         nlines    522 ncomments    323 %  61.88
+
+**********************************************************************
+                    MODUL:                 setangle.c                              
+ ROUTINE  main0001         nlines     64 ncomments     53 %  82.81
+
+**********************************************************************
+                    MODUL:                 setmv.c                                 
+ ROUTINE  main0001         nlines     80 ncomments     46 %  57.50
+
+**********************************************************************
+                    MODUL:                 setvtmv.c                               
+ ROUTINE  main0001         nlines     46 ncomments     24 %  52.17
+
+**********************************************************************
+                    MODUL:                 strconst.c                              
+ ROUTINE  main0001         nlines    102 ncomments     63 %  61.76
+
+**********************************************************************
+                    MODUL:                 strpad.c                                
+ ROUTINE  main0001         nlines     43 ncomments     31 %  72.09
+
+**********************************************************************
+                    MODUL:                 swapio.c                                
+ ROUTINE  main0001         nlines    127 ncomments     46 %  36.22
+
+**********************************************************************
+                    MODUL:                 trackmm.c                               
+ ROUTINE  main0001         nlines     64 ncomments     56 %  87.50
+
+**********************************************************************
+                    MODUL:                 vs2.c                                   
+ ROUTINE  main0001         nlines     54 ncomments     36 %  66.67
+
+**********************************************************************
+                    MODUL:                 vsdef.c                                 
+ ROUTINE  main0001         nlines     78 ncomments     58 %  74.36
+
+**********************************************************************
+                    MODUL:                 vsis.c                                  
+ ROUTINE  main0001         nlines    106 ncomments     70 %  66.04
+
+**********************************************************************
+                    MODUL:                 vsvers.c                                
+ ROUTINE  main0001         nlines     61 ncomments     40 %  65.57
+
+**********************************************************************
+                    MODUL:                 wattrblk.c                              
+ ROUTINE  main0001         nlines     50 ncomments     30 %  60.00
+
+**********************************************************************
+                    MODUL:                 csfattr.h                               
+ ROUTINE  main0001         nlines     33 ncomments      7 %  21.21
+
+**********************************************************************
+                    MODUL:                 csf.h                                   
+ ROUTINE  main0001         nlines    320 ncomments    116 %  36.25
+
+**********************************************************************
+                    MODUL:                 csfimpl.h                               
+ ROUTINE  main0001         nlines    248 ncomments    113 %  45.56
+
+**********************************************************************
+                    MODUL:                 csftypes.h                              
+ ROUTINE  main0001         nlines    369 ncomments    197 %  53.39
+
+ ***************************************************
+modul angle.c                                   nroutines    1  nlines   64  ncomments   33  %  51.56
+modul attravai.c                                nroutines    1  nlines   31  ncomments   18  %  58.06
+modul attrsize.c                                nroutines    1  nlines   26  ncomments   13  %  50.00
+modul cellsize.c                                nroutines    1  nlines  101  ncomments   67  %  66.34
+modul create2.c                                 nroutines    1  nlines  229  ncomments   49  %  21.40
+modul csfglob.c                                 nroutines    1  nlines   19  ncomments   12  %  63.16
+modul csfsup.c                                  nroutines    1  nlines   49  ncomments   27  %  55.10
+modul delattr.c                                 nroutines    1  nlines   69  ncomments   43  %  62.32
+modul dumconv.c                                 nroutines    1  nlines   61  ncomments   51  %  83.61
+modul endian.c                                  nroutines    1  nlines   25  ncomments   13  %  52.00
+modul filename.c                                nroutines    1  nlines   37  ncomments   29  %  78.38
+modul gattrblk.c                                nroutines    1  nlines   83  ncomments   51  %  61.45
+modul gattridx.c                                nroutines    1  nlines   46  ncomments   29  %  63.04
+modul gcellrep.c                                nroutines    1  nlines   18  ncomments    9  %  50.00
+modul gdattype.c                                nroutines    1  nlines   43  ncomments   34  %  79.07
+modul getattr.c                                 nroutines    1  nlines   75  ncomments   38  %  50.67
+modul _getcell.c                                nroutines    1  nlines   34  ncomments   17  %  50.00
+modul _getrow.c                                 nroutines    1  nlines   33  ncomments   16  %  48.48
+modul getx0.c                                   nroutines    1  nlines   37  ncomments   27  %  72.97
+modul gety0.c                                   nroutines    1  nlines   40  ncomments   30  %  75.00
+modul ggisfid.c                                 nroutines    1  nlines   42  ncomments   32  %  76.19
+modul gmaxval.c                                 nroutines    1  nlines   42  ncomments   19  %  45.24
+modul gminval.c                                 nroutines    1  nlines   44  ncomments   21  %  47.73
+modul gnrcols.c                                 nroutines    1  nlines   40  ncomments   31  %  77.50
+modul gnrrows.c                                 nroutines    1  nlines   40  ncomments   31  %  77.50
+modul gproj.c                                   nroutines    1  nlines   40  ncomments   32  %  80.00
+modul gputproj.c                                nroutines    1  nlines   57  ncomments   38  %  66.67
+modul _gsomece.c                                nroutines    1  nlines   47  ncomments   22  %  46.81
+modul gvalscal.c                                nroutines    1  nlines   38  ncomments   30  %  78.95
+modul gvartype.c                                nroutines    1  nlines   45  ncomments   26  %  57.78
+modul gversion.c                                nroutines    1  nlines   36  ncomments   26  %  72.22
+modul ismv.c                                    nroutines    1  nlines   81  ncomments   41  %  50.62
+modul kernlcsf.c                                nroutines    1  nlines  156  ncomments   85  %  54.49
+modul legend.c                                  nroutines    1  nlines  139  ncomments   46  %  33.09
+modul mclose.c                                  nroutines    1  nlines  101  ncomments   30  %  29.70
+modul mopen.c                                   nroutines    1  nlines  197  ncomments   78  %  39.59
+modul moreattr.c                                nroutines    1  nlines  186  ncomments  118  %  63.44
+modul mperror.c                                 nroutines    1  nlines   89  ncomments   40  %  44.94
+modul pgisfid.c                                 nroutines    1  nlines   51  ncomments   33  %  64.71
+modul pmaxval.c                                 nroutines    1  nlines   67  ncomments   45  %  67.16
+modul pminval.c                                 nroutines    1  nlines   68  ncomments   46  %  67.65
+modul putallmv.c                                nroutines    1  nlines   61  ncomments   17  %  27.87
+modul putattr.c                                 nroutines    1  nlines  219  ncomments   65  %  29.68
+modul _putcell.c                                nroutines    1  nlines   36  ncomments   16  %  44.44
+modul putsomec.c                                nroutines    1  nlines  271  ncomments  123  %  45.39
+modul putx0.c                                   nroutines    1  nlines   51  ncomments   33  %  64.71
+modul puty0.c                                   nroutines    1  nlines   52  ncomments   34  %  65.38
+modul pvalscal.c                                nroutines    1  nlines   59  ncomments   42  %  71.19
+modul rattrblk.c                                nroutines    1  nlines   44  ncomments   25  %  56.82
+modul rcomp.c                                   nroutines    1  nlines   64  ncomments   34  %  53.12
+modul rcoords.c                                 nroutines    1  nlines   92  ncomments   45  %  48.91
+modul rdup2.c                                   nroutines    1  nlines   57  ncomments   26  %  45.61
+modul reseterr.c                                nroutines    1  nlines   37  ncomments   29  %  78.38
+modul rextend.c                                 nroutines    1  nlines   78  ncomments   26  %  33.33
+modul rmalloc.c                                 nroutines    1  nlines   40  ncomments   26  %  65.00
+modul _rputrow.c                                nroutines    1  nlines   37  ncomments   19  %  51.35
+modul rrowcol.c                                 nroutines    1  nlines  101  ncomments   38  %  37.62
+modul ruseas.c                                  nroutines    1  nlines  522  ncomments  323  %  61.88
+modul setangle.c                                nroutines    1  nlines   64  ncomments   53  %  82.81
+modul setmv.c                                   nroutines    1  nlines   80  ncomments   46  %  57.50
+modul setvtmv.c                                 nroutines    1  nlines   46  ncomments   24  %  52.17
+modul strconst.c                                nroutines    1  nlines  102  ncomments   63  %  61.76
+modul strpad.c                                  nroutines    1  nlines   43  ncomments   31  %  72.09
+modul swapio.c                                  nroutines    1  nlines  127  ncomments   46  %  36.22
+modul trackmm.c                                 nroutines    1  nlines   64  ncomments   56  %  87.50
+modul vs2.c                                     nroutines    1  nlines   54  ncomments   36  %  66.67
+modul vsdef.c                                   nroutines    1  nlines   78  ncomments   58  %  74.36
+modul vsis.c                                    nroutines    1  nlines  106  ncomments   70  %  66.04
+modul vsvers.c                                  nroutines    1  nlines   61  ncomments   40  %  65.57
+modul wattrblk.c                                nroutines    1  nlines   50  ncomments   30  %  60.00
+modul csfattr.h                                 nroutines    1  nlines   33  ncomments    7  %  21.21
+modul csf.h                                     nroutines    1  nlines  320  ncomments  116  %  36.25
+modul csfimpl.h                                 nroutines    1  nlines  248  ncomments  113  %  45.56
+modul csftypes.h                                nroutines    1  nlines  369  ncomments  197  %  53.39
+
+ nmoduls = 74 nroutines= 74 nlines= 6392 ncomment= 3383 %   52.9255333

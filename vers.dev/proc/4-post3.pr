@@ -1,0 +1,259 @@
+clear
+reset maxcc
+echo on
+
+setexp pwd `pwd`  % fix location, can not cd
+ok=0
+setexp trange % 0.  180.
+
+%-------------------------------------
+% variables define externally
+% scripts, folder 
+
+exec $scripts./4-project.pr
+
+
+inpdeck $input
+
+
+setexp par 
+
+%-------------------------------------
+setexp calcType $calcType
+setexp TSUNAMI  TSUNAMI
+tsunami=compexp(calcType,TSUNAMI)
+
+
+if (tsunami) then
+setexp TITLE $Title 
+setexp forecasts
+
+
+else
+setexp TITLE  $hurName forecast on $lastBulDate
+setexp forecasts forecast forecast1 forecast2
+
+setexp form +\%d \%b \%Y \%H:\%M:\%S
+
+
+forecast=@timeShift
+setexp date0 $bulDate @forecast hour
+setexp forecast ``date --date="$date0 " "$form " `
+
+forecast1=forecast+24
+setexp date0 $bulDate @forecast1 hour
+setexp forecast1 ``date --date="$date0 " "$form " `
+
+forecast2=forecast+48
+setexp date0 $bulDate @forecast2 hour
+setexp forecast2 ``date --date="$date0 " "$form " `
+endif
+
+check
+%-------------------------------------
+
+setexp dir1 watch
+setexp dir1 ?dir1
+setexp dir1 $1
+
+setexp dir2 .
+setexp dir2 ?dir2
+setexp dir2 $2
+
+setexp outdir watch
+setexp outdir ?outdir
+setexp outdir $3
+
+%-------------------------------------
+
+wait off
+wait ?on-off
+
+
+!if [ ! -d $outdir ] \; then mkdir $outdir \; fi
+
+
+nw=200000
+
+ID=do(nw)
+out=dim(nw,0)
+
+ZmaxS=dim(nw,MV)
+TzmaxS=dim(nw,MV)
+TarrS=dim(nw,MV)
+
+VmaxS=dim(nw,MV)
+
+Lat=dim(nw,MV)
+Long=dim(nw,MV)
+
+ZmaxR=dim(nw,0)
+TzmaxR=dim(nw,MV)
+TarrR=dim(nw,MV)
+
+
+check
+
+
+%----------------------------------------
+%idPlace	latPlace	longPlace	zPlace	cellNear	latNear	longNear	zNear	distNear	$namePlace
+read $dir1./../watch.txt tab
+
+id=idPlace
+Lat_id = latNear
+Long_id = longNear
+
+check
+
+%----------------------------------------
+%idPlace	        tarr	        zmax	       tzmax	        vmax	  $namePlace
+read $dir1./statistics.txt tab
+
+id=idPlace
+
+out_id=out_id+1
+ZmaxS_id = int(zmax*100)/100
+VmaxS_id = int(vmax*100)/100
+TzmaxS_id=tzmax/3600
+TarrS_id=tarr/3600
+
+check
+
+relwork id
+%----------------------------------------
+%* ID	country	place	MaxHei	ArrTime	tMaxHei	ArrivalTS	lon	lat	popest	cityclass	Th1m	h1m
+
+read $dir2./locations.txt tab
+rename "* ID" id
+
+tMaxHei1=int(tMaxHei)+mod(tMaxHei,1)/0.6
+ArrTime1=int(ArrTime)+mod(ArrTime,1)/0.6
+
+out_id=out_id + 1
+
+Lat_id = lat
+Long_id = lon
+ZmaxR_id = MaxHei
+TzmaxR_id=tMaxHei1
+TarrR_id=ArrTime1
+
+check
+
+%----------------------------------------
+
+maxzmax=max(ZmaxR)
+if (.not.exist(minzmax)) minzmax=min(ZmaxR)
+minzmax=min(maxzmax/2,minzmax)
+
+print minzmax maxzmax 
+
+%----------------------------------------
+
+nz=20
+maxval=gprog(nz,maxzmax,minzmax)
+nval=dim(nz)
+i=0
+do lab1 nz
+i=i+1
+nval_i=sum(ZmaxR.ge.maxval_i.and.out.eq.2)
+end lab1
+
+print maxval nval 
+
+
+if (nplot.lt.nval_nz) then
+family nval maxval
+minzmax=maxval(nplot)
+endif
+
+print minzmax nplot
+
+check
+
+m=ZmaxR.gt.minzmax.and.out.eq.2
+%----------------------------------------
+
+
+$$$$ next
+
+maxcc=sum(m).eq.0
+check
+
+
+ii=getm(m,ID)
+
+
+ID=ID_ii
+out=out_ii
+Lat=Lat_ii
+Long=Long_ii
+ZmaxS=ZmaxS_ii
+VmaxS=VmaxS_ii
+TarrS=TarrS_ii
+TzmaxS=TzmaxS_ii
+
+ZmaxR=ZmaxR_ii
+TarrR=TarrR_ii
+TzmaxR=TzmaxR_ii
+
+check
+
+echo off
+echo ?on-off
+
+%----------------------------------------
+nw=size(ii)
+
+j=0
+do lab1 nw
+j=j+1
+
+id = ID_j
+
+
+setexp file $$namePlace@id
+
+setexp file1 $dir1./$file..txt
+if (.not.existF(file1)) goto end1
+
+setexp file2 $dir2./WT_$file..txt
+fill   file2 _
+if (.not.existF(file2)) goto end1
+
+
+%time	zsurf	v
+read "$file1."  tab
+setexp zsurf Shoreline
+
+read "$file2." header time2 zsurfmax zsurfmin zmax
+setexp zsurfmin Min. at 5 Km Radius
+setexp zsurfmax Max. at 5 Km Radius
+ 
+setexp labx time2/3600 time/3600 time2/3600
+setexp laby zsurfmax zsurf zsurfmin 
+
+minzsurfmin=min(zsurfmin)
+minzsurfmin=int(minzsurfmin*100)/100
+
+setexp name $$namePlace@id
+
+laser on laser1.ps
+plot
+x $labx $forecasts 
+y $laby
+label x time (h)
+label y Water surf. level (m)
+text $TITLE  --- location=$name  --- id=@id  
+text At 5 km radius : Min Height(m)=#minzsurfmin Max Height(m)=#(ZmaxR_j) 
+text At the shoreline: Max Height(m)=#(ZmaxS_j) Max Velocity(m/s)=#(VmaxS_j) 
+end 
+laser off
+
+!convert laser1.ps -geometry 600x400 "$outdir./zsurf.$file..txt.png"
+
+$$$$ end1
+
+check
+
+end lab1
+
