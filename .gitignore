@@ -20,8 +20,6 @@ DATA/srtm30_plus-v5.0
 logCalls.txt
 
 #work folders
-publicVM/
-storage/
 publicVM
 storage
 storage.local/
