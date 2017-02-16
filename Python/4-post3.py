@@ -246,7 +246,7 @@ for j in range(nw):
 
      header=read_header(file2)
      time2,zsurfmax,zsurfmin,zmax=np.loadtxt(file2,skiprows=1,delimiter=',',unpack=True)
-     zsurfminl=' Min. at 5 Km Radius'
+     zsurfminl='Min. at 5 Km Radius'
      zsurfmaxl='Max. at 5 Km Radius'
  
 #    labx=[time2/3600, f1.time/3600, time2/3600]
@@ -257,18 +257,27 @@ for j in range(nw):
 
      name=wat['$namePlace'][wat.idPlace==id]
 
-     plt.figure()#figsize=(6,4))
+     fig = plt.figure()#figsize=(6,4))
+     ax = fig.add_axes([0.1,0.2,0.8,0.75])
      plt.plot(time2/3600.,zsurfmax,'r')
-     plt.plot(f1.time/3600.,f1.zsurf,'b')
-     plt.plot(time2/3600.,zsurfmin,'g')
+#    plt.plot(f1.time/3600.,f1.zsurf,'b')
+#    plt.plot(time2/3600.,zsurfmin,'g')
      plt.axvline(x=forecast,color='m')
      plt.axvline(x=forecast1,color='y')
-     plt.axvline(x=forecast2,color='r')
+     plt.axvline(x=forecast2,color='brown')
      plt.xlabel('time (h)')
      plt.ylabel('Water surf. level (m)')
-     plt.figtext(.01,.05,'{}  --- location={}  --- id={}'.format(TITLE,name,id))  
-     plt.figtext(.01,.03,' At 5 km radius : Min Height(m)={} Max Height(m)={}'.format(minzsurfmin,ZmaxR[j])) 
-     plt.figtext(.01,.01,' At the shoreline: Max Height(m)={} Max Velocity(m/s)={}'.format(ZmaxS[j],VmaxS[j])) 
+#------------------------------------------------------
+     ax.text(0.01, 0.9,zsurfmaxl, ha='left', va='center', transform=ax.transAxes, color='r')
+     #ax.text(0.01, 0.85,'shoreline', ha='left', va='center', transform=ax.transAxes, color='b')
+     #ax.text(0.01, 0.8,zsurfminl, ha='left', va='center', transform=ax.transAxes, color='g')
+     ax.text(0.01, 0.85,dforecast, ha='left', va='center', transform=ax.transAxes, color='m')
+     ax.text(0.01, 0.8,dforecast1, ha='left', va='center', transform=ax.transAxes, color='y')
+     ax.text(0.01, 0.75,dforecast2, ha='left', va='center', transform=ax.transAxes, color='brown')
+#------------------------------------------------------
+     plt.figtext(.01,.09,'{}  --- location={}  --- id={}'.format(TITLE,name,id),size='x-small')  
+     plt.figtext(.01,.05,' At 5 km radius : Min Height(m)={} Max Height(m)={}'.format(minzsurfmin,ZmaxR[j]),size='x-small') 
+     plt.figtext(.01,.01,' At the shoreline: Max Height(m)={} Max Velocity(m/s)={}'.format(ZmaxS[j],VmaxS[j]),size='x-small') 
      plt.savefig(outdir+'/zsurf.'+filename[0]+'.txt.png')
 
 
