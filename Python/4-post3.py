@@ -6,6 +6,7 @@ from datetime import datetime,timedelta
 from read import readtxt,read_header
 from matplotlib import pyplot as plt
 from family import family
+import matplotlib.dates as mdates
 
 def expf(t,A,K,C):
         return A*np.exp(K*t)+C
@@ -259,13 +260,21 @@ for j in range(nw):
 
      fig = plt.figure()#figsize=(6,4))
      ax = fig.add_axes([0.1,0.2,0.8,0.75])
-     plt.plot(time2/3600.,zsurfmax,'r')
+#-------------------------------------------------------------------------------
+     plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%H \n %Y/%m/%d'))
+     plt.gca().xaxis.set_major_locator(mdates.HourLocator(byhour=[0,12]))
+     ax.xaxis_date()
+     xdate=[datetime.strptime(date0,form)+timedelta(seconds=t) for t in time2]
+#-------------------------------------------------------------------------------
+#    plt.plot(time2/3600.,zsurfmax,'r')
+     plt.plot(xdate,zsurfmax,'r')
 #    plt.plot(f1.time/3600.,f1.zsurf,'b')
 #    plt.plot(time2/3600.,zsurfmin,'g')
-     plt.axvline(x=forecast,color='m')
-     plt.axvline(x=forecast1,color='y')
-     plt.axvline(x=forecast2,color='brown')
-     plt.xlabel('time (h)')
+     plt.axvline(x=dforecast,color='m')
+     plt.axvline(x=dforecast1,color='y')
+     plt.axvline(x=dforecast2,color='brown')
+#    plt.xlabel('time (h)')
+     plt.xlabel('date')
      plt.ylabel('Water surf. level (m)')
 #------------------------------------------------------
      ax.text(0.01, 0.9,zsurfmaxl, ha='left', va='center', transform=ax.transAxes, color='r')
@@ -278,6 +287,8 @@ for j in range(nw):
      plt.figtext(.01,.09,'{}  --- location={}  --- id={}'.format(TITLE,name,id),size='x-small')  
      plt.figtext(.01,.05,' At 5 km radius : Min Height(m)={} Max Height(m)={}'.format(minzsurfmin,ZmaxR[j]),size='x-small') 
      plt.figtext(.01,.01,' At the shoreline: Max Height(m)={} Max Velocity(m/s)={}'.format(ZmaxS[j],VmaxS[j]),size='x-small') 
+     plt.gcf().autofmt_xdate(bottom=0.2, rotation=0, ha='right')
+     ax.tick_params(axis='x', labelsize=8)
      plt.savefig(outdir+'/zsurf.'+filename[0]+'.txt.png')
 
 
