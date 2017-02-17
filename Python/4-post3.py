@@ -277,6 +277,9 @@ for j in range(nw):
      plt.xlabel('date')
      plt.ylabel('Water surf. level (m)')
 #------------------------------------------------------
+     a,b = ax.get_xlim()
+     ax.set_xlim(a,b+.5)
+#------------------------------------------------------
      ax.text(0.01, 0.9,zsurfmaxl, ha='left', va='center', transform=ax.transAxes, color='r')
      #ax.text(0.01, 0.85,'shoreline', ha='left', va='center', transform=ax.transAxes, color='b')
      #ax.text(0.01, 0.8,zsurfminl, ha='left', va='center', transform=ax.transAxes, color='g')
