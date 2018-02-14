@@ -194,6 +194,14 @@ iadv=np.argwhere(bul == toBul).flatten()[0]
 advWind=vmax[iadv]
 catAdvWind=catWind[iadv]
 
+
+#----- 
+# fix lon
+if np.sign(np.max(xhc)) != np.sign(np.min(xhc)) :
+        isgn = np.sign(xhc[0])
+	for i in range(1,xhc.size):
+            if np.sign(xhc[i]) != isgn : xhc[i]=xhc[i] + isgn*360. 
+
 #------------------------------------
 # read last bul and evaluate the track in the next timeForecast 
 
