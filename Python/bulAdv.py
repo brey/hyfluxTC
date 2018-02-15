@@ -197,7 +197,7 @@ catAdvWind=catWind[iadv]
 
 #----- 
 # fix lon
-if np.sign(np.max(xhc)) != np.sign(np.min(xhc)) :
+if np.abs(np.max(xhc) - np.min(xhc)) > 300. :
         isgn = np.sign(xhc[0])
 	for i in range(1,xhc.size):
             if np.sign(xhc[i]) != isgn : xhc[i]=xhc[i] + isgn*360. 
