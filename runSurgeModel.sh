@@ -486,6 +486,7 @@ exit 0 ; fi
 #............................................... 
 pubDir=$destPath/final
 pubDirNew=$destPath/final-new
+pubDirOld=$destPath/final-old
  
 if [ ! -d $pubDirNew ] ; then NVSexecute mkdir -p $pubDirNew ; fi
 dir=$pubDirNew
@@ -503,11 +504,18 @@ done
 cp -rv $advDir $pubDirNew
 
 rm -f $pubDirNew/TIF_H_* 
-rm -rf $pubDir
+#rm -rf $pubDir
 
+#move final to final-old
+NVSexecute mv $pubDir $pubDirOld
+
+#move final-new to final
 NVSexecute mv $pubDirNew $pubDir
 dir=$pubDir
   if [ `check_mkdir $dir` -ne 1 ] ; then echo Problems in mv $pubDirNew $pubDir ; fi
+
+#delete final-old
+rm -rf $pubDirOld
 
 #............................................... 
 dir=$destPath/$toBul/final

@@ -45,7 +45,7 @@ echo Min is: $min
 for i in `seq $min $max`;
         do
             echo 'executing BulNo '$i
-           #execute "runSurgeModel.sh -hurNo $hurNo -bulNo $i -surgeCalc automatic"
-            execute "runSurgeModel.sh -hurNo $hurNo -bulNo $i -surgeCalc automatic -testing yes"
+            execute "runSurgeModel.sh -hurNo $hurNo -bulNo $i -surgeCalc automatic"
+#            execute "runSurgeModel.sh -hurNo $hurNo -bulNo $i -surgeCalc automatic -testing yes"
         done
 
